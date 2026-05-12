@@ -101,7 +101,7 @@
 
     .map-shell {
       position: relative;
-      min-height: calc(100vh - 180px);
+      min-height: calc(100vh - 210px);
       border: 1px solid rgba(255,255,255,.1);
       border-radius: 8px;
       overflow: hidden;
@@ -146,8 +146,8 @@
     svg {
       display: block;
       width: 100%;
-      height: calc(100vh - 180px);
-      min-height: 620px;
+      height: calc(100vh - 210px);
+      min-height: 640px;
       cursor: grab;
       touch-action: none;
     }
@@ -184,15 +184,24 @@
 
     .node text {
       fill: white;
-      font-size: 12px;
-      font-weight: 760;
+      font-size: 15px;
+      font-weight: 790;
       text-anchor: middle;
       dominant-baseline: middle;
       pointer-events: none;
     }
 
-    .node .small-text { font-size: 10.5px; font-weight: 720; }
-    .node .badge-text { font-size: 9px; font-weight: 860; fill: #07111d; }
+    .node .small-text { font-size: 13px; font-weight: 760; }
+    .node .badge-text { font-size: 10.5px; font-weight: 880; fill: #07111d; }
+
+    .edge.soft path {
+      stroke: rgba(190, 204, 229, .18);
+      stroke-width: 1.35;
+    }
+
+    .edge.soft .edge-label {
+      fill: #b9c4d8;
+    }
 
     .control-dock {
       position: absolute;
@@ -237,6 +246,28 @@
       max-width: min(660px, calc(100% - 400px));
       color: var(--muted);
       font-size: 12px;
+    }
+
+    .map-explanation {
+      max-width: 1080px;
+      margin: 18px auto 6px;
+      padding: 0 clamp(4px, 2vw, 18px) 8px;
+      color: #d8dfef;
+    }
+
+    .map-explanation h2 {
+      margin: 0 0 8px;
+      font-size: 17px;
+      line-height: 1.25;
+      color: #f5f7fb;
+    }
+
+    .map-explanation p {
+      margin: 0;
+      max-width: 960px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.58;
     }
 
     .legend span {
@@ -395,7 +426,7 @@
       .tabs { width: 100%; justify-content: space-between; }
       .tab { flex: 1; padding: 10px 8px; }
       main { padding: 10px; }
-      svg { height: calc(100vh - 230px); min-height: 560px; }
+      svg { height: calc(100vh - 245px); min-height: 560px; }
       .legend { display: none; }
       .control-dock { right: 12px; bottom: 12px; max-width: calc(100% - 24px); }
       .control-btn { padding: 9px 11px; font-size: 12px; }
@@ -437,6 +468,10 @@
         <div class="legend"></div>
         <div class="control-dock"></div>
       </div>
+      <div class="map-explanation">
+        <h2>Lectura academica de la Carta 1</h2>
+        <p>Este mapa organiza la relacion entre responsabilidad social corporativa, teoria de stakeholders y conflicto de interes. Para Control IT S.A.S., permite entender que clientes, equipo interno, proveedores, comunidad y Estado no son actores aislados, sino grupos que influyen en la continuidad del servicio, la confianza y la legitimidad de las decisiones tecnologicas. La carta concluye que una gestion responsable requiere dialogo, priorizacion etica y negociacion para transformar tensiones en sostenibilidad organizacional.</p>
+      </div>
     </section>
 
     <section id="carta2" class="map-section" data-map="carta2">
@@ -450,6 +485,10 @@
         <div class="legend"></div>
         <div class="control-dock"></div>
       </div>
+      <div class="map-explanation">
+        <h2>Lectura academica de la Carta 2</h2>
+        <p>La segunda carta presenta una vision radial y comparativa de los stakeholders y sus conflictos potenciales. En Control IT S.A.S., esta lectura ayuda a priorizar actores segun poder, legitimidad, urgencia, interes, cooperacion y amenaza, evitando que la empresa responda igual a necesidades distintas. El mapa muestra que la estrategia de relacionamiento debe diferenciar clientes empresariales, proveedores tecnologicos, equipo interno y entorno social para prevenir tensiones y fortalecer decisiones sostenibles.</p>
+      </div>
     </section>
 
     <section id="carta3" class="map-section" data-map="carta3">
@@ -462,6 +501,10 @@
         <svg id="svg-carta3" role="img" aria-label="Mapa conceptual Carta 3"></svg>
         <div class="legend"></div>
         <div class="control-dock"></div>
+      </div>
+      <div class="map-explanation">
+        <h2>Lectura academica de la Carta 3</h2>
+        <p>La tercera carta explica la accountability como rendicion de cuentas orientada a reducir asimetrias de informacion entre la organizacion y sus stakeholders. En Control IT S.A.S., el mapa conecta transparencia, reportabilidad, estandares de sostenibilidad, Economia del Bien Comun y Ecologia Politica. La conclusion central es que informar no basta: los reportes, indicadores y decisiones deben reflejar practicas reales, responsabilidad etica y compromiso con el bienestar comun.</p>
       </div>
     </section>
   </main>
@@ -677,18 +720,28 @@
     }
 
     function node(id, label, x, y, category, level, note, app, extra = {}) {
+      const minW = level === "central" ? 360 : level === "main" ? 238 : 190;
+      const minH = level === "central" ? 116 : level === "main" ? 76 : 54;
       return {
         id, label, x, y, category, level,
         color: colors[category] || colors.hoja,
-        w: extra.w || (level === "central" ? 250 : level === "main" ? 190 : 150),
-        h: extra.h || (level === "central" ? 82 : level === "main" ? 58 : 42),
+        w: Math.max(extra.w || minW, minW),
+        h: Math.max(extra.h || minH, minH),
         priority: extra.priority || null,
         detail: extra.detail || makeDetail(label, category, note, app, extra)
       };
     }
 
     function link(source, target, label, extra = {}) {
-      return { source, target, label, dashed: extra.dashed || false };
+      return { source, target, label, dashed: extra.dashed || false, soft: extra.soft || false };
+    }
+
+    function compactLayout(nodes, scaleX, scaleY, offsetY = 0) {
+      nodes.forEach(n => {
+        n.x = Math.round(n.x * scaleX);
+        n.y = Math.round(n.y * scaleY + offsetY);
+      });
+      return nodes;
     }
 
     const baseNotes = {
@@ -708,10 +761,10 @@
       { ...node("c1", "RSC, Stakeholders y Conflictos de Interes", 0, 0, "central", "central", "", "", { detail: detailTemplates.central1, w: 300, h: 92 }) },
       node("rsc", "Responsabilidad Social Corporativa (RSC)", -520, -310, "rsc", "main", baseNotes.rsc),
       node("freeman", "Teoria de los Stakeholders (Freeman, 1984)", 0, -360, "stakeholder", "main", baseNotes.freeman, null, { w: 215 }),
-      node("gestion", "Gestion de Stakeholders", 520, -310, "gestion", "main", baseNotes.gestion),
+      node("gestion", "Gestion estrategica de stakeholders", 520, -310, "gestion", "main", baseNotes.gestion),
       node("segmentacion", "Modelos de Segmentacion y Priorizacion", 690, 40, "segmentacion", "main", baseNotes.segmentacion, null, { w: 215 }),
       node("etica", "Marco Etico de la RSC", 420, 330, "etica", "main", baseNotes.etica),
-      node("conflicto", "Conflicto Organizacional (Galtung)", 0, 390, "conflicto", "main", baseNotes.conflicto),
+      node("conflicto", "Conflictos de interes organizacionales (Galtung)", 0, 390, "conflicto", "main", baseNotes.conflicto, null, { w: 260 }),
       node("proceso", "Proceso del Conflicto (Robbins & Judge)", -430, 330, "proceso", "main", baseNotes.proceso, null, { w: 215 }),
       node("negociacion", "Negociacion y MAPAN", -690, 40, "negociacion", "main", baseNotes.negociacion),
       node("maxneef", "Necesidades Humanas (Max-Neef)", -520, -40, "maxneef", "main", baseNotes.maxneef),
@@ -722,14 +775,14 @@
       node("industria4", "Revolucion 4.0", -300, -470, "rsc", "leaf", "La Revolucion 4.0 intensifica los impactos de la empresa mediante automatizacion, datos y nuevas formas de trabajo. Por eso la RSC debe incluir efectos tecnologicos sobre empleo, privacidad y inclusion.", null, { ref: "rsc" }),
       node("stake_rsc", "Stakeholders de la RSC", -780, -260, "rsc", "leaf", "Consumidores, proveedores, empleados, administracion publica, comunidad, sociedad y medios participan en la legitimidad de la empresa. Cada grupo puede evaluar de manera distinta el desempeno responsable.", null, { ref: "stakeholder" }),
 
-      node("internos", "Stakeholders internos", -160, -570, "stakeholder", "leaf", "Empleados, accionistas y directivos son actores internos porque participan de la operacion y del gobierno de la empresa. Sus expectativas inciden en clima laboral, inversion y direccion estrategica.", null, { ref: "stakeholder" }),
-      node("externos", "Stakeholders externos", 150, -570, "stakeholder", "leaf", "Clientes, proveedores, Estado, comunidad, competencia y medios de comunicacion son actores externos que afectan o son afectados por la empresa. Su lectura del impacto define parte de la reputacion organizacional.", null, { ref: "stakeholder" }),
+      node("internos", "Equipo tecnico, administrativo y directivo", -160, -570, "stakeholder", "leaf", "Empleados, accionistas y directivos son actores internos porque participan de la operacion y del gobierno de la empresa. Sus expectativas inciden en clima laboral, inversion y direccion estrategica.", null, { ref: "stakeholder", w: 230 }),
+      node("externos", "Clientes empresariales, proveedores y comunidad", 150, -570, "stakeholder", "leaf", "Clientes, proveedores, Estado, comunidad, competencia y medios de comunicacion son actores externos que afectan o son afectados por la empresa. Su lectura del impacto define parte de la reputacion organizacional.", null, { ref: "stakeholder", w: 240 }),
       node("engagement", "Engagement", 0, -660, "stakeholder", "leaf", "El engagement es el compromiso activo con los grupos de interes. Implica escuchar, responder, informar y construir acuerdos, no solo comunicar decisiones ya tomadas.", null, { ref: "stakeholder" }),
 
       node("mitchell", "Mitchell-Agle-Wood", 720, -505, "gestion", "leaf", "Este modelo clasifica stakeholders mediante poder, legitimidad y urgencia. Entre mas atributos acumula un actor, mayor prioridad requiere en la estrategia.", null, { ref: "gestion" }),
       node("tipos", "Latentes, discrecionales, definitivos...", 470, -560, "gestion", "leaf", "La combinacion de atributos produce tipos como latentes, discrecionales, reclamantes, dominantes, dependientes, peligrosos y definitivos. Cada tipo demanda una forma distinta de atencion.", null, { ref: "gestion", w: 185 }),
       node("csr", "CSR Europe y ORSE", 810, -260, "gestion", "leaf", "CSR Europe y ORSE proponen preguntas practicas: por que relacionarse, quienes son los stakeholders y como sostener el dialogo. El modelo destaca participacion y paneles de interesados.", null, { ref: "gestion" }),
-      node("ethical", "Ethical Accountability", 570, -160, "gestion", "leaf", "Ethical Accountability busca integrar stakeholders en la planeacion estrategica, gestionar riesgos y fortalecer relaciones sostenibles. Su valor es pasar de reaccionar a planificar el vinculo.", null, { ref: "gestion" }),
+      node("ethical", "Accountability etica con stakeholders", 570, -160, "gestion", "leaf", "Ethical Accountability busca integrar stakeholders en la planeacion estrategica, gestionar riesgos y fortalecer relaciones sostenibles. Su valor es pasar de reaccionar a planificar el vinculo.", null, { ref: "gestion", w: 220 }),
 
       node("gardner", "Modelo Gardner (Poder-Interes)", 940, -50, "segmentacion", "leaf", "Gardner clasifica actores por poder e interes: actores clave, mantener satisfecho, mantener informado y minimo esfuerzo. La matriz permite ajustar la intensidad de comunicacion.", null, { ref: "gestion" }),
       node("savage", "Modelo Savage (Cooperacion-Amenaza)", 930, 150, "segmentacion", "leaf", "Savage observa potencial de cooperacion y amenaza para definir estrategias como implicar, colaborar, controlar o defender. Es util cuando un stakeholder puede apoyar y presionar al mismo tiempo.", null, { ref: "gestion", w: 185 }),
@@ -737,7 +790,7 @@
       node("habermas", "Habermas", 660, 500, "etica", "leaf", "Habermas aporta la idea de racionalidad comunicativa: las normas ganan legitimidad cuando pueden justificarse ante los afectados. En la RSC esto se traduce en dialogo y transparencia.", null, { ref: "etica" }),
       node("apel", "Apel", 420, 580, "etica", "leaf", "Apel fortalece una etica del discurso orientada a la corresponsabilidad. La empresa debe reconocer que sus decisiones tienen consecuencias morales sobre otros.", null, { ref: "etica" }),
       node("agente", "Empresa como agente moral", 790, 310, "etica", "leaf", "La empresa es agente moral porque decide, actua y afecta a la sociedad. No puede excusarse solo en la busqueda de eficiencia cuando sus impactos comprometen derechos o bienestar.", null, { ref: "etica" }),
-      node("dialogo", "Dialogo etico", 540, 180, "etica", "leaf", "El dialogo etico convierte la teoria de stakeholders en accion: identificar afectados, escuchar argumentos, ajustar decisiones y rendir cuentas.", null, { ref: "etica" }),
+      node("dialogo", "Dialogo etico con stakeholders", 540, 180, "etica", "leaf", "El dialogo etico convierte la teoria de stakeholders en accion: identificar afectados, escuchar argumentos, ajustar decisiones y rendir cuentas.", null, { ref: "etica" }),
 
       node("dilema", "Dilema", 190, 570, "conflicto", "leaf", "Un dilema aparece cuando una persona enfrenta dos fines incompatibles. En la organizacion puede surgir entre velocidad y calidad, rentabilidad y bienestar, o confidencialidad y transparencia.", null, { ref: "conflicto" }),
       node("disputa", "Disputa", 0, 620, "conflicto", "leaf", "La disputa ocurre cuando varias personas o grupos persiguen un mismo recurso escaso. En empresas se refleja en presupuestos, tiempos de entrega, reconocimiento o acceso a informacion.", null, { ref: "conflicto" }),
@@ -752,7 +805,7 @@
 
       node("etapasneg", "7 etapas de negociacion", -960, 30, "negociacion", "leaf", "La negociacion se sistematiza en planeacion, reglas basicas, justificacion, busqueda de acuerdos, solucion de problemas, cierre e implementacion. Este orden reduce improvisacion.", null, { ref: "negociacion" }),
       node("mapan", "MAPAN", -900, -150, "negociacion", "leaf", "El MAPAN, Mejor Alternativa Para un Acuerdo Negociado, define el valor minimo aceptable y las alternativas posibles. Es una herramienta para negociar con limites claros.", null, { ref: "negociacion" }),
-      node("eticneg", "Etica en la negociacion", -690, -210, "negociacion", "leaf", "La negociacion requiere comunicacion, intereses, aspiraciones y acuerdos sostenibles. La etica evita que un acuerdo formalmente exitoso destruya confianza futura.", null, { ref: "negociacion" }),
+      node("eticneg", "Etica en acuerdos comerciales y tecnicos", -690, -210, "negociacion", "leaf", "La negociacion requiere comunicacion, intereses, aspiraciones y acuerdos sostenibles. La etica evita que un acuerdo formalmente exitoso destruya confianza futura.", null, { ref: "negociacion", w: 225 }),
 
       node("existenciales", "Necesidades existenciales", -770, -30, "maxneef", "leaf", "Ser, tener, hacer y estar describen modos existenciales de la necesidad humana. Ayudan a entender que una tension laboral no siempre es solo material.", null, { ref: "maxneef" }),
       node("axiologicas", "Necesidades axiologicas", -690, -390, "maxneef", "leaf", "Subsistencia, proteccion, afecto, participacion, identidad, libertad, ocio, creacion y entendimiento estructuran la propuesta de Max-Neef.", null, { ref: "maxneef" }),
@@ -764,15 +817,15 @@
       link("c1", "segmentacion", "ordena"), link("c1", "etica", "se fundamenta en"), link("c1", "conflicto", "reconoce"),
       link("c1", "proceso", "analiza"), link("c1", "negociacion", "resuelve mediante"), link("c1", "maxneef", "explica desde"),
       link("rsc", "gestion", "requiere"), link("gestion", "conflicto", "para prevenir"), link("conflicto", "negociacion", "se transforma mediante"), link("negociacion", "sostenibilidad", "alcanza"),
-      link("rsc", "valor", "genera"), link("rsc", "triple", "integra"), link("rsc", "industria4", "responde a"), link("rsc", "stake_rsc", "considera"),
-      link("freeman", "internos", "clasifica"), link("freeman", "externos", "clasifica"), link("freeman", "engagement", "exige"),
-      link("gestion", "mitchell", "usa"), link("gestion", "tipos", "clasifica"), link("gestion", "csr", "dialoga con"), link("gestion", "ethical", "planea con"),
-      link("segmentacion", "gardner", "incluye"), link("segmentacion", "savage", "incluye"),
-      link("etica", "habermas", "se inspira en"), link("etica", "apel", "se inspira en"), link("etica", "agente", "reconoce"), link("etica", "dialogo", "operacionaliza"),
-      link("conflicto", "dilema", "puede ser"), link("conflicto", "disputa", "puede ser"), link("conflicto", "origen", "nace de"), link("conflicto", "transformacion", "busca"),
-      link("proceso", "oposicion", "etapa"), link("proceso", "cognicion", "etapa"), link("proceso", "intenciones", "etapa"), link("proceso", "comportamiento", "etapa"), link("proceso", "resultados", "etapa"),
-      link("negociacion", "etapasneg", "se estructura en"), link("negociacion", "mapan", "define"), link("negociacion", "eticneg", "requiere"),
-      link("maxneef", "existenciales", "clasifica"), link("maxneef", "axiologicas", "clasifica"), link("maxneef", "insatisfechas", "cuando faltan")
+      link("rsc", "valor", "genera", { soft: true }), link("rsc", "triple", "integra", { soft: true }), link("rsc", "industria4", "responde a", { soft: true }), link("rsc", "stake_rsc", "considera", { soft: true }),
+      link("freeman", "internos", "clasifica", { soft: true }), link("freeman", "externos", "clasifica", { soft: true }), link("freeman", "engagement", "exige", { soft: true }),
+      link("gestion", "mitchell", "usa", { soft: true }), link("gestion", "tipos", "clasifica", { soft: true }), link("gestion", "csr", "dialoga con", { soft: true }), link("gestion", "ethical", "planea con", { soft: true }),
+      link("segmentacion", "gardner", "incluye", { soft: true }), link("segmentacion", "savage", "incluye", { soft: true }),
+      link("etica", "habermas", "se inspira en", { soft: true }), link("etica", "apel", "se inspira en", { soft: true }), link("etica", "agente", "reconoce", { soft: true }), link("etica", "dialogo", "operacionaliza", { soft: true }),
+      link("conflicto", "dilema", "puede ser", { soft: true }), link("conflicto", "disputa", "puede ser", { soft: true }), link("conflicto", "origen", "nace de", { soft: true }), link("conflicto", "transformacion", "busca", { soft: true }),
+      link("proceso", "oposicion", "etapa", { soft: true }), link("proceso", "cognicion", "etapa", { soft: true }), link("proceso", "intenciones", "etapa", { soft: true }), link("proceso", "comportamiento", "etapa", { soft: true }), link("proceso", "resultados", "etapa", { soft: true }),
+      link("negociacion", "etapasneg", "se estructura en", { soft: true }), link("negociacion", "mapan", "define", { soft: true }), link("negociacion", "eticneg", "requiere", { soft: true }),
+      link("maxneef", "existenciales", "clasifica", { soft: true }), link("maxneef", "axiologicas", "clasifica", { soft: true }), link("maxneef", "insatisfechas", "cuando faltan", { soft: true })
     ];
 
     function radialPoint(angleDeg, radiusX, radiusY) {
@@ -783,10 +836,10 @@
     const branchData = [
       ["rsc2", "Responsabilidad Social Corporativa (RSC)", "rsc", baseNotes.rsc, "alta"],
       ["freeman2", "Teoria de los Stakeholders (Freeman, 1984)", "stakeholder", baseNotes.freeman, "alta"],
-      ["gestion2", "Gestion de Stakeholders", "gestion", baseNotes.gestion, "alta"],
+      ["gestion2", "Gestion estrategica de stakeholders", "gestion", baseNotes.gestion, "alta"],
       ["segmentacion2", "Segmentacion y Priorizacion", "segmentacion", baseNotes.segmentacion, "media"],
       ["etica2", "Marco Etico de la RSC", "etica", baseNotes.etica, "alta"],
-      ["conflicto2", "Conflicto Organizacional (Galtung)", "conflicto", baseNotes.conflicto, "alta"],
+      ["conflicto2", "Conflictos de interes comerciales y tecnicos", "conflicto", baseNotes.conflicto, "alta"],
       ["proceso2", "Proceso del Conflicto", "proceso", baseNotes.proceso, "media"],
       ["negociacion2", "Negociacion y MAPAN", "negociacion", baseNotes.negociacion, "media"],
       ["maxneef2", "Necesidades Humanas (Max-Neef)", "maxneef", baseNotes.maxneef, "alta"]
@@ -797,7 +850,7 @@
     ];
 
     branchData.forEach((b, i) => {
-      const [x, y] = radialPoint(i * 40, 560, 360);
+      const [x, y] = radialPoint(i * 40, 500, 325);
       carta2Nodes.push(node(b[0], b[1], x, y, b[2], "main", b[3], null, { priority: b[4], w: b[1].length > 32 ? 220 : 190 }));
     });
 
@@ -808,21 +861,21 @@
       ["maxconf2", "Necesidades no satisfechas", "maxneef", -465, 470, "Las necesidades no satisfechas generan tensiones que pueden expresarse como dilemas, disputas o resistencia organizacional."],
       ["galtung2", "Transformacion del conflicto", "conflicto", -750, 115, "La transformacion del conflicto atiende causas profundas y no solo manifestaciones visibles como hostilidad o quejas."],
       ["dialogo2", "Dialogo etico", "etica", -360, -520, "El dialogo etico convierte la responsabilidad social en una practica deliberativa con los afectados."],
-      ["stakeholders2", "Internos y externos", "stakeholder", 355, -515, "Internos y externos permiten reconocer que el exito empresarial depende de relaciones dentro y fuera de la organizacion."],
+      ["stakeholders2", "Equipo interno y stakeholders externos", "stakeholder", 355, -515, "Internos y externos permiten reconocer que el exito empresarial depende de relaciones dentro y fuera de la organizacion."],
       ["mapan2", "MAPAN", "negociacion", -705, -250, "El MAPAN define alternativas y limites antes de negociar, lo que protege acuerdos sostenibles."],
       ["sost2", "Sostenibilidad", "sostenibilidad", 0, 610, "La sostenibilidad es el horizonte que integra RSC, stakeholders, manejo de conflictos y negociacion responsable."]
     ].forEach(d => carta2Nodes.push(node(d[0], d[1], d[3], d[4], d[2], "leaf", d[5], null, { ref: d[2] })));
 
     const carta2Links = [
       ...branchData.map(b => link("c2", b[0], "rama principal")),
-      link("gestion2", "mitchell2", "clasifica por"),
-      link("segmentacion2", "gardner2", "ordena con"),
-      link("segmentacion2", "savage2", "complementa con"),
-      link("maxneef2", "maxconf2", "explica"),
-      link("conflicto2", "galtung2", "se transforma"),
-      link("etica2", "dialogo2", "requiere"),
-      link("freeman2", "stakeholders2", "distingue"),
-      link("negociacion2", "mapan2", "define"),
+      link("gestion2", "mitchell2", "clasifica por", { soft: true }),
+      link("segmentacion2", "gardner2", "ordena con", { soft: true }),
+      link("segmentacion2", "savage2", "complementa con", { soft: true }),
+      link("maxneef2", "maxconf2", "explica", { soft: true }),
+      link("conflicto2", "galtung2", "se transforma", { soft: true }),
+      link("etica2", "dialogo2", "requiere", { soft: true }),
+      link("freeman2", "stakeholders2", "distingue", { soft: true }),
+      link("negociacion2", "mapan2", "define", { soft: true }),
       link("rsc2", "sost2", "busca"),
       link("maxneef2", "conflicto2", "genera tensiones con", { dashed: true }),
       link("mitchell2", "gardner2", "compara prioridad con", { dashed: true }),
@@ -834,16 +887,16 @@
     const carta3Nodes = [
       { ...node("c3", "Accountability - Rendicion de Cuentas", 0, 0, "accountability", "central", "", "", { detail: detailTemplates.central3, w: 300, h: 92 }) },
       node("nucleo", "Eje I - Nucleo de la Accountability", 0, -360, "accountability", "main", "El nucleo explica la rendicion de cuentas como transparencia etica para disminuir asimetrias de informacion. Tambien introduce la tension entre legitimidad estrategica e interes comun.", null, { ref: "accountability", w: 230 }),
-      node("trad", "Eje II - Estandares Tradicionales", 520, 0, "estandar", "main", "Los estandares tradicionales convierten la sostenibilidad en reportes, sistemas de gestion y validacion externa. Permiten comunicar desempeno economico, social y ambiental con lenguaje comparable.", null, { ref: "estandar", w: 230 }),
+      node("trad", "Eje II - Estandares de sostenibilidad y cumplimiento", 520, 0, "estandar", "main", "Los estandares tradicionales convierten la sostenibilidad en reportes, sistemas de gestion y validacion externa. Permiten comunicar desempeno economico, social y ambiental con lenguaje comparable.", null, { ref: "estandar", w: 285 }),
       node("ebc", "Eje III - Economia del Bien Comun", 0, 360, "ebc", "main", "La Economia del Bien Comun propone un cambio de paradigma: el capital financiero es medio y el bien comun es fin. Su Balance del Bien Comun mide impactos desde valores constitucionales y grupos de interes.", null, { ref: "ebc", videos: videoByCategory.ebc, w: 230 }),
       node("ecopol", "Eje IV - Ecologia Politica", -520, 0, "ecologia", "main", "La ecologia politica critica la reduccion de naturaleza y personas a recursos de mercado. Conecta sostenibilidad, poder, justicia social, limites naturales y etica de la otredad.", null, { ref: "ecologia", videos: videoByCategory.ecologia, w: 210 }),
       node("defacc", "Definicion: transparencia etica", -160, -570, "accountability", "leaf", "La accountability obliga a explicar decisiones e impactos de manera comprensible para quienes no gestionan la organizacion. Su funcion es reducir asimetria de informacion.", null, { ref: "accountability" }),
-      node("instrumental", "Enfoque Instrumental", 165, -570, "accountability", "leaf", "El enfoque instrumental usa la rendicion de cuentas para legitimidad de imagen, atraccion de capital y maximizacion del valor de mercado. Su riesgo es ocultar impactos negativos.", null, { ref: "accountability" }),
+      node("instrumental", "Legitimidad estrategica de imagen", 165, -570, "accountability", "leaf", "El enfoque instrumental usa la rendicion de cuentas para legitimidad de imagen, atraccion de capital y maximizacion del valor de mercado. Su riesgo es ocultar impactos negativos.", null, { ref: "accountability", w: 220 }),
       node("greenwashing", "Greenwashing", 350, -440, "accountability", "leaf", "El greenwashing aparece cuando la comunicacion sostenible no corresponde con las practicas reales. La carta lo asocia con reportes voluntarios ambiguos o selectivos.", null, { ref: "accountability" }),
-      node("eticoacc", "Enfoque Etico", -350, -440, "accountability", "leaf", "El enfoque etico entiende la accountability como liderazgo consciente, bienestar comun y participacion democratica de stakeholders. Busca trascendencia social, no solo reputacion.", null, { ref: "accountability" }),
+      node("eticoacc", "Etica dialogica y liderazgo consciente", -350, -440, "accountability", "leaf", "El enfoque etico entiende la accountability como liderazgo consciente, bienestar comun y participacion democratica de stakeholders. Busca trascendencia social, no solo reputacion.", null, { ref: "accountability", w: 230 }),
       node("gri", "GRI", 800, -190, "estandar", "leaf", "GRI es un referente global para reportar desempeno economico, social y ambiental. Ayuda a estructurar memorias de sostenibilidad con indicadores comparables.", null, { ref: "estandar" }),
       node("pacto", "Pacto Global - 10 principios ONU", 815, 0, "estandar", "leaf", "El Pacto Global promueve diez principios en derechos humanos, trabajo, medio ambiente y anticorrupcion. Conecta la gestion empresarial con metas globales de sostenibilidad.", null, { ref: "accountability" }),
-      node("iso", "ISO 14001 / ISO 26000", 800, 190, "estandar", "leaf", "ISO 14001 orienta sistemas de gestion ambiental e ISO 26000 funciona como guia de responsabilidad social. Ambas ayudan a convertir compromisos en procesos.", null, { ref: "estandar" }),
+      node("iso", "ISO 14001 / ISO 26000: gestion ambiental y RSC", 800, 190, "estandar", "leaf", "ISO 14001 orienta sistemas de gestion ambiental e ISO 26000 funciona como guia de responsabilidad social. Ambas ayudan a convertir compromisos en procesos.", null, { ref: "estandar", w: 250 }),
       node("sa8000", "SA 8000", 560, 295, "estandar", "leaf", "SA 8000 es una certificacion voluntaria enfocada en buenas practicas laborales. Fortalece la dimension social de la sostenibilidad empresarial.", null, { ref: "estandar" }),
       node("aa1000", "AA1000", 560, -295, "estandar", "leaf", "AA1000 aporta aseguramiento y validacion externa para evaluar calidad de la informacion de sostenibilidad. Su objetivo es evitar que el reporte sea solo publicidad.", null, { ref: "estandar" }),
       node("filosofia", "Capital como medio, bien comun como fin", -260, 575, "ebc", "leaf", "La EBC cuestiona la acumulacion de riqueza como finalidad de la economia. Propone que el capital sirva a necesidades humanas y bienestar comun.", null, { ref: "ebc", videos: videoByCategory.ebc, w: 190 }),
@@ -862,18 +915,22 @@
     const carta3Links = [
       link("c3", "nucleo", "sostiene"), link("c3", "trad", "se operacionaliza mediante"), link("c3", "ebc", "se transforma con"), link("c3", "ecopol", "se critica desde"),
       link("c3", "tension", "genera tension entre"),
-      link("nucleo", "defacc", "define"), link("nucleo", "instrumental", "puede adoptar"), link("instrumental", "greenwashing", "riesgo"), link("nucleo", "eticoacc", "contrasta con"),
+      link("nucleo", "defacc", "define", { soft: true }), link("nucleo", "instrumental", "puede adoptar", { soft: true }), link("instrumental", "greenwashing", "riesgo", { soft: true }), link("nucleo", "eticoacc", "contrasta con", { soft: true }),
       link("eticoacc", "gri", "impulsa"), link("eticoacc", "iso", "impulsa"), link("eticoacc", "pacto", "impulsa"),
-      link("trad", "gri", "reporting"), link("trad", "pacto", "reporting"), link("trad", "iso", "compliance"), link("trad", "sa8000", "compliance"), link("trad", "aa1000", "validacion"),
+      link("trad", "gri", "reporting", { soft: true }), link("trad", "pacto", "reporting", { soft: true }), link("trad", "iso", "compliance", { soft: true }), link("trad", "sa8000", "compliance", { soft: true }), link("trad", "aa1000", "validacion", { soft: true }),
       link("trad", "crisis", "son insuficientes ante"),
-      link("ebc", "filosofia", "propone"), link("ebc", "balance", "usa"), link("ebc", "matriz", "aplica"), link("matriz", "valores", "cruza con"),
-      link("ecopol", "cosificacion", "denuncia"), link("ecopol", "fuerte", "fundamenta"), link("fuerte", "limites", "reconoce"), link("ecopol", "otredad", "exige"), link("ecopol", "praxis", "actua mediante")
+      link("ebc", "filosofia", "propone", { soft: true }), link("ebc", "balance", "usa", { soft: true }), link("ebc", "matriz", "aplica"), link("matriz", "valores", "cruza con", { soft: true }),
+      link("ecopol", "cosificacion", "denuncia", { soft: true }), link("ecopol", "fuerte", "fundamenta"), link("fuerte", "limites", "reconoce", { soft: true }), link("ecopol", "otredad", "exige", { soft: true }), link("ecopol", "praxis", "actua mediante", { soft: true })
     ];
 
+    compactLayout(carta1Nodes, .78, .72, 85);
+    compactLayout(carta2Nodes, .82, .80, 60);
+    compactLayout(carta3Nodes, .76, .74, 70);
+
     const maps = {
-      carta1: { svg: "#svg-carta1", nodes: carta1Nodes, links: carta1Links, viewBox: [-1120, -980, 2240, 1900], tour: ["c1","rsc","gestion","conflicto","negociacion","sostenibilidad"] },
-      carta2: { svg: "#svg-carta2", nodes: carta2Nodes, links: carta2Links, viewBox: [-1040, -860, 2080, 1660], tour: ["c2","gestion2","conflicto2","maxneef2","rsc2","etica2","mitchell2","gardner2","negociacion2","sost2"] },
-      carta3: { svg: "#svg-carta3", nodes: carta3Nodes, links: carta3Links, viewBox: [-1050, -920, 2100, 1800], tour: ["c3","nucleo","tension","trad","gri","ebc","balance","ecopol","fuerte"] }
+      carta1: { svg: "#svg-carta1", nodes: carta1Nodes, links: carta1Links, viewBox: [-900, -700, 1800, 1450], tour: ["c1","rsc","gestion","conflicto","negociacion","sostenibilidad"] },
+      carta2: { svg: "#svg-carta2", nodes: carta2Nodes, links: carta2Links, viewBox: [-760, -610, 1520, 1220], tour: ["c2","gestion2","conflicto2","maxneef2","rsc2","etica2","mitchell2","gardner2","negociacion2","sost2"] },
+      carta3: { svg: "#svg-carta3", nodes: carta3Nodes, links: carta3Links, viewBox: [-780, -860, 1560, 1540], tour: ["c3","nucleo","tension","trad","gri","ebc","balance","ecopol","fuerte"] }
     };
 
     const state = {};
@@ -950,7 +1007,7 @@
         .data(cfg.links)
         .enter()
         .append("g")
-        .attr("class", "edge");
+        .attr("class", d => `edge${d.soft ? " soft" : ""}`);
 
       edges.append("path")
         .attr("d", d => pathFor(byId.get(d.source), byId.get(d.target)))
@@ -988,8 +1045,8 @@
             .attr("stroke", d.category === "central" ? "#9fd3ff" : "#fff")
             .attr("stroke-width", 2.4)
             .attr("filter", "drop-shadow(0 0 18px rgba(159,211,255,.55))");
-          g.selectAll("text").data(wrapLabel(d.label, 26)).enter().append("text")
-            .attr("y", (_, i, arr) => (i - (arr.length - 1) / 2) * 16)
+          g.selectAll("text").data(wrapLabel(d.label, 28)).enter().append("text")
+            .attr("y", (_, i, arr) => (i - (arr.length - 1) / 2) * 19)
             .attr("fill", d.category === "central" ? "#08101a" : "#fff")
             .style("fill", d.category === "central" ? "#08101a" : "#fff")
             .text(t => t);
@@ -1003,10 +1060,10 @@
             .attr("fill", d.color)
             .attr("stroke", "rgba(255,255,255,.34)")
             .attr("stroke-width", 1.2);
-          const lines = wrapLabel(d.label, d.level === "leaf" ? 22 : 25);
+          const lines = wrapLabel(d.label, d.level === "leaf" ? 24 : 27);
           g.selectAll(".label-line").data(lines).enter().append("text")
             .attr("class", d.level === "leaf" ? "small-text" : "")
-            .attr("y", (_, i, arr) => (i - (arr.length - 1) / 2) * (d.level === "leaf" ? 13 : 15))
+            .attr("y", (_, i, arr) => (i - (arr.length - 1) / 2) * (d.level === "leaf" ? 16 : 18))
             .text(t => t);
           if (d.priority) addPriorityBadge(g, d);
         }
@@ -1043,17 +1100,17 @@
     function addPriorityBadge(g, d) {
       const badgeColor = d.priority === "alta" ? "#22c55e" : d.priority === "media" ? "#f8c14a" : "#94a3b8";
       g.append("rect")
-        .attr("x", d.w / 2 - 54)
-        .attr("y", -d.h / 2 - 10)
-        .attr("width", 58)
-        .attr("height", 20)
-        .attr("rx", 10)
+        .attr("x", d.w / 2 - 72)
+        .attr("y", -d.h / 2 - 13)
+        .attr("width", 76)
+        .attr("height", 24)
+        .attr("rx", 12)
         .attr("fill", badgeColor)
         .attr("stroke", "rgba(255,255,255,.5)");
       g.append("text")
         .attr("class", "badge-text")
-        .attr("x", d.w / 2 - 25)
-        .attr("y", -d.h / 2)
+        .attr("x", d.w / 2 - 34)
+        .attr("y", -d.h / 2 - 1)
         .text(d.priority.toUpperCase());
     }
 

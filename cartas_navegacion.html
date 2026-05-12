@@ -181,6 +181,11 @@
     .node { cursor: pointer; filter: drop-shadow(0 14px 18px rgba(0,0,0,.24)); }
     .node shape, .node rect, .node ellipse { transition: transform .2s ease, stroke .2s ease, filter .2s ease; }
     .node:hover rect, .node:hover ellipse { stroke: rgba(255,255,255,.94); filter: brightness(1.1); }
+    .node.active-node rect, .node.active-node ellipse {
+      stroke: #f8c14a;
+      stroke-width: 4px;
+      filter: drop-shadow(0 0 16px rgba(248,193,74,.48));
+    }
 
     .node text {
       fill: white;
@@ -778,6 +783,68 @@
       return nodes;
     }
 
+    function preventOverlaps(nodes, { gap = 34, iterations = 120, anchor = .01 } = {}) {
+      nodes.forEach(n => {
+        n.homeX = n.x;
+        n.homeY = n.y;
+      });
+
+      const mobility = n => n.level === "central" ? 0 : n.level === "main" ? .55 : 1;
+
+      for (let iter = 0; iter < iterations; iter += 1) {
+        for (let i = 0; i < nodes.length; i += 1) {
+          for (let j = i + 1; j < nodes.length; j += 1) {
+            const a = nodes[i];
+            const b = nodes[j];
+            let dx = b.x - a.x;
+            let dy = b.y - a.y;
+            if (dx === 0 && dy === 0) {
+              dx = (j % 2 ? 1 : -1);
+              dy = (i % 2 ? 1 : -1);
+            }
+
+            const overlapX = (a.w + b.w) / 2 + gap - Math.abs(dx);
+            const overlapY = (a.h + b.h) / 2 + gap - Math.abs(dy);
+            if (overlapX <= 0 || overlapY <= 0) continue;
+
+            const pushX = overlapX < overlapY;
+            const sign = pushX ? Math.sign(dx) || 1 : Math.sign(dy) || 1;
+            const push = (pushX ? overlapX : overlapY) / 2;
+            const ma = mobility(a);
+            const mb = mobility(b);
+            const total = ma + mb || 1;
+            const moveA = push * (ma / total);
+            const moveB = push * (mb / total);
+
+            if (pushX) {
+              a.x -= sign * moveA;
+              b.x += sign * moveB;
+            } else {
+              a.y -= sign * moveA;
+              b.y += sign * moveB;
+            }
+          }
+        }
+
+        nodes.forEach(n => {
+          const m = mobility(n);
+          if (!m) {
+            n.x = n.homeX;
+            n.y = n.homeY;
+            return;
+          }
+          n.x += (n.homeX - n.x) * anchor * (1 - m * .45);
+          n.y += (n.homeY - n.y) * anchor * (1 - m * .45);
+        });
+      }
+
+      nodes.forEach(n => {
+        n.x = Math.round(n.x);
+        n.y = Math.round(n.y);
+      });
+      return nodes;
+    }
+
     const baseNotes = {
       rsc: "La Responsabilidad Social Corporativa es el compromiso que asume una organizacion frente a sus stakeholders en dimensiones economicas, sociales y ambientales. No se reduce a donaciones o marketing con causa: implica responder por impactos, generar valor compartido y sostener un dialogo permanente con los grupos de interes.",
       freeman: "La teoria de Freeman define stakeholder como cualquier individuo o grupo que puede afectar o ser afectado por el logro de los objetivos organizacionales. Su aporte es ampliar la mirada de la empresa mas alla del accionista, integrando actores internos y externos en la estrategia.",
@@ -987,10 +1054,44 @@
       otredad: [-430, 290]
     });
 
+    preventOverlaps(carta1Nodes, { gap: 42, iterations: 150, anchor: .006 });
+    preventOverlaps(carta2Nodes, { gap: 46, iterations: 150, anchor: .006 });
+    preventOverlaps(carta3Nodes, { gap: 44, iterations: 140, anchor: .008 });
+
+    const carta1Route = [
+      "c1",
+      "rsc", "valor", "triple", "industria4", "stake_rsc",
+      "freeman", "internos", "externos", "engagement",
+      "gestion", "mitchell", "tipos", "csr", "ethical",
+      "segmentacion", "gardner", "savage",
+      "etica", "habermas", "apel", "agente", "dialogo",
+      "conflicto", "dilema", "disputa", "origen", "transformacion",
+      "proceso", "oposicion", "cognicion", "intenciones", "comportamiento", "resultados",
+      "negociacion", "etapasneg", "mapan", "eticneg",
+      "maxneef", "existenciales", "axiologicas", "insatisfechas",
+      "sostenibilidad"
+    ];
+
+    const carta2Route = [
+      "c2",
+      "gestion2", "mitchell2", "segmentacion2", "gardner2", "savage2",
+      "conflicto2", "galtung2", "maxneef2", "maxconf2",
+      "rsc2", "sost2", "freeman2", "stakeholders2",
+      "etica2", "dialogo2", "negociacion2", "mapan2", "proceso2"
+    ];
+
+    const carta3Route = [
+      "c3",
+      "nucleo", "defacc", "instrumental", "greenwashing", "eticoacc", "tension",
+      "trad", "gri", "pacto", "iso", "sa8000", "aa1000", "crisis",
+      "ebc", "filosofia", "balance", "matriz", "valores",
+      "ecopol", "cosificacion", "fuerte", "limites", "otredad", "praxis"
+    ];
+
     const maps = {
-      carta1: { svg: "#svg-carta1", nodes: carta1Nodes, links: carta1Links, viewBox: [-1500, -980, 3000, 2100], fitPadding: 130, focusScale: 1.18, tour: ["c1","rsc","gestion","conflicto","negociacion","sostenibilidad"] },
-      carta2: { svg: "#svg-carta2", nodes: carta2Nodes, links: carta2Links, viewBox: [-1200, -850, 2400, 1700], fitPadding: 130, focusScale: 1.2, tour: ["c2","gestion2","conflicto2","maxneef2","rsc2","etica2","mitchell2","gardner2","negociacion2","sost2"] },
-      carta3: { svg: "#svg-carta3", nodes: carta3Nodes, links: carta3Links, viewBox: [-1070, -720, 2140, 1560], fitPadding: 130, focusScale: 1.22, tour: ["c3","nucleo","tension","trad","gri","ebc","balance","ecopol","fuerte"] }
+      carta1: { svg: "#svg-carta1", nodes: carta1Nodes, links: carta1Links, viewBox: [-1650, -1100, 3300, 2350], fitPadding: 150, focusScale: 1.14, tour: carta1Route },
+      carta2: { svg: "#svg-carta2", nodes: carta2Nodes, links: carta2Links, viewBox: [-1350, -980, 2700, 1950], fitPadding: 150, focusScale: 1.16, tour: carta2Route },
+      carta3: { svg: "#svg-carta3", nodes: carta3Nodes, links: carta3Links, viewBox: [-1250, -900, 2500, 1850], fitPadding: 150, focusScale: 1.16, tour: carta3Route }
     };
 
     const state = {};
@@ -1067,15 +1168,15 @@
       const byId = new Map(cfg.nodes.map(n => [n.id, n]));
       const [tx0, ty0, tw, th] = cfg.viewBox;
       const zoom = d3.zoom()
-        .scaleExtent([0.35, 3.4])
+        .scaleExtent([0.32, 3.8])
         .translateExtent([[tx0 - tw, ty0 - th], [tx0 + tw * 2, ty0 + th * 2]])
-        .wheelDelta(event => -event.deltaY * (event.deltaMode ? 0.045 : 0.0012))
+        .wheelDelta(event => -event.deltaY * (event.deltaMode ? 0.08 : 0.0032))
         .clickDistance(4)
         .on("zoom", event => viewport.attr("transform", event.transform));
 
       svg.call(zoom);
       svg.on("dblclick.zoom", null);
-      state[key] = { svg, zoom, byId, tourIndex: -1, cfg };
+      state[key] = { svg, zoom, byId, nodeSelection: null, selectedNodeId: null, tourIndex: -1, cfg };
 
       const edges = linkLayer.selectAll(".edge")
         .data(cfg.links)
@@ -1102,8 +1203,7 @@
         .attr("transform", d => `translate(${d.x},${d.y})`)
         .on("click", (event, d) => {
           event.stopPropagation();
-          const tourIndex = cfg.tour.indexOf(d.id);
-          if (tourIndex >= 0) state[key].tourIndex = tourIndex;
+          setActiveNode(key, d.id);
           openPanel(d);
         });
 
@@ -1144,14 +1244,14 @@
       const shell = document.querySelector(`[data-map="${key}"] .map-shell`);
       const dock = shell.querySelector(".control-dock");
       dock.innerHTML = `
-        <span class="control-hint">Flechas: recorrer nodos</span>
+        <span class="control-hint">Flechas: seguir ruta</span>
         <button class="control-btn" data-action="center">Centrar vista</button>
         <button class="control-btn" data-action="in">Zoom +</button>
         <button class="control-btn" data-action="out">Zoom -</button>
       `;
       dock.querySelector('[data-action="center"]').addEventListener("click", () => centerView(key));
-      dock.querySelector('[data-action="in"]').addEventListener("click", () => zoomBy(key, 1.18));
-      dock.querySelector('[data-action="out"]').addEventListener("click", () => zoomBy(key, .84));
+      dock.querySelector('[data-action="in"]').addEventListener("click", () => zoomBy(key, 1.28));
+      dock.querySelector('[data-action="out"]').addEventListener("click", () => zoomBy(key, .78));
 
       const legend = shell.querySelector(".legend");
       legend.innerHTML = [
@@ -1166,6 +1266,7 @@
       setTimeout(() => {
         if (document.querySelector(`[data-map="${key}"]`).classList.contains("active")) centerView(key);
       }, 120);
+      state[key].nodeSelection = nodes;
     }
 
     function addPriorityBadge(g, d) {
@@ -1273,8 +1374,9 @@
       const [vx, vy, vw, vh] = st.cfg.viewBox;
       const current = d3.zoomTransform(st.svg.node());
       const fit = fitTransform(st.cfg);
-      const scale = Math.min(2.05, Math.max(current.k || 1, fit.k, st.cfg.focusScale || 1.2));
-      const tx = (vx + vw / 2) - scale * n.x;
+      const scale = Math.min(2.25, Math.max(current.k || 1, fit.k, st.cfg.focusScale || 1.15));
+      const panelOffset = window.innerWidth >= 900 ? vw * .08 : 0;
+      const tx = (vx + vw / 2 - panelOffset) - scale * n.x;
       const ty = (vy + vh / 2 + 85) - scale * n.y;
       st.svg.transition().duration(duration).ease(d3.easeCubicInOut).call(st.zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
     }
@@ -1312,10 +1414,25 @@
       return d3.zoomIdentity.translate(tx, ty).scale(scale);
     }
 
+    function setActiveNode(key, id) {
+      const st = state[key];
+      if (!st) return;
+      st.selectedNodeId = id;
+      const index = st.cfg.tour.indexOf(id);
+      st.tourIndex = index >= 0 ? index : -1;
+      if (st.nodeSelection) {
+        st.nodeSelection.classed("active-node", d => d.id === id);
+      }
+    }
+
     function stepTour(key, direction) {
       const st = state[key];
       if (!st || !st.cfg.tour.length) return;
       const total = st.cfg.tour.length;
+      const selectedIndex = st.selectedNodeId ? st.cfg.tour.indexOf(st.selectedNodeId) : -1;
+      if (selectedIndex >= 0 && selectedIndex !== st.tourIndex) {
+        st.tourIndex = selectedIndex;
+      }
       if (st.tourIndex < 0) {
         st.tourIndex = direction > 0 ? 0 : total - 1;
       } else {
@@ -1324,6 +1441,7 @@
       const id = st.cfg.tour[st.tourIndex];
       const node = st.byId.get(id);
       if (node) {
+        setActiveNode(key, id);
         openPanel(node);
         focusNode(key, id, 650);
       }

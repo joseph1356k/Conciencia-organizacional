@@ -46,9 +46,9 @@
       z-index: 20;
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
-      gap: 20px;
+      gap: 16px;
       align-items: center;
-      padding: 18px clamp(18px, 4vw, 48px);
+      padding: 12px clamp(18px, 4vw, 42px);
       background: rgba(15, 17, 23, .9);
       backdrop-filter: blur(16px);
       border-bottom: 1px solid rgba(255,255,255,.08);
@@ -56,15 +56,15 @@
 
     h1 {
       margin: 0;
-      font-size: clamp(20px, 3.2vw, 36px);
+      font-size: clamp(20px, 2.6vw, 31px);
       line-height: 1.05;
       font-weight: 780;
     }
 
     .subtitle {
-      margin-top: 6px;
+      margin-top: 5px;
       color: var(--muted);
-      font-size: 14px;
+      font-size: 13px;
     }
 
     .tabs {
@@ -101,7 +101,7 @@
 
     .map-shell {
       position: relative;
-      min-height: calc(100vh - 210px);
+      min-height: calc(100vh - 175px);
       border: 1px solid rgba(255,255,255,.1);
       border-radius: 8px;
       overflow: hidden;
@@ -146,8 +146,8 @@
     svg {
       display: block;
       width: 100%;
-      height: calc(100vh - 210px);
-      min-height: 640px;
+      height: calc(100vh - 175px);
+      min-height: 680px;
       cursor: grab;
       touch-action: none;
     }
@@ -184,15 +184,15 @@
 
     .node text {
       fill: white;
-      font-size: 15px;
-      font-weight: 790;
+      font-size: 18px;
+      font-weight: 820;
       text-anchor: middle;
       dominant-baseline: middle;
       pointer-events: none;
     }
 
-    .node .small-text { font-size: 13px; font-weight: 760; }
-    .node .badge-text { font-size: 10.5px; font-weight: 880; fill: #07111d; }
+    .node .small-text { font-size: 15.5px; font-weight: 790; }
+    .node .badge-text { font-size: 12px; font-weight: 900; fill: #07111d; }
 
     .edge.soft path {
       stroke: rgba(190, 204, 229, .18);
@@ -227,6 +227,20 @@
       font-weight: 780;
       cursor: pointer;
       transition: transform .18s ease, border-color .18s ease, background .18s ease;
+    }
+
+    .control-hint {
+      display: inline-flex;
+      align-items: center;
+      min-height: 40px;
+      padding: 9px 12px;
+      border: 1px solid rgba(248,193,74,.24);
+      border-radius: 999px;
+      color: #ffe7a3;
+      background: rgba(248,193,74,.09);
+      box-shadow: 0 12px 28px rgba(0,0,0,.22);
+      font-size: 13px;
+      font-weight: 800;
     }
 
     .control-btn:hover {
@@ -426,10 +440,11 @@
       .tabs { width: 100%; justify-content: space-between; }
       .tab { flex: 1; padding: 10px 8px; }
       main { padding: 10px; }
-      svg { height: calc(100vh - 245px); min-height: 560px; }
+      svg { height: calc(100vh - 225px); min-height: 580px; }
       .legend { display: none; }
       .control-dock { right: 12px; bottom: 12px; max-width: calc(100% - 24px); }
       .control-btn { padding: 9px 11px; font-size: 12px; }
+      .control-hint { min-height: 36px; padding: 8px 10px; font-size: 12px; }
       .detail-panel {
         top: auto;
         right: 0;
@@ -479,7 +494,7 @@
         <div class="map-meta">
           <div class="map-kicker">Carta 2 · Vision radial ampliada</div>
           <div class="map-title">Teoria de stakeholders y conflictos de interes</div>
-          <div class="map-note">El recorrido automatico prioriza nodos con mayor densidad de conexiones y muestra badges de prioridad estrategica.</div>
+          <div class="map-note">Usa las flechas del teclado para recorrer los nodos segun prioridad estrategica y densidad de conexiones.</div>
         </div>
         <svg id="svg-carta2" role="img" aria-label="Mapa conceptual Carta 2"></svg>
         <div class="legend"></div>
@@ -720,8 +735,8 @@
     }
 
     function node(id, label, x, y, category, level, note, app, extra = {}) {
-      const minW = level === "central" ? 360 : level === "main" ? 238 : 190;
-      const minH = level === "central" ? 116 : level === "main" ? 76 : 54;
+      const minW = level === "central" ? 430 : level === "main" ? 305 : 248;
+      const minH = level === "central" ? 132 : level === "main" ? 96 : 70;
       return {
         id, label, x, y, category, level,
         color: colors[category] || colors.hoja,
@@ -923,14 +938,14 @@
       link("ecopol", "cosificacion", "denuncia", { soft: true }), link("ecopol", "fuerte", "fundamenta"), link("fuerte", "limites", "reconoce", { soft: true }), link("ecopol", "otredad", "exige", { soft: true }), link("ecopol", "praxis", "actua mediante", { soft: true })
     ];
 
-    compactLayout(carta1Nodes, .78, .72, 85);
-    compactLayout(carta2Nodes, .82, .80, 60);
-    compactLayout(carta3Nodes, .76, .74, 70);
+    compactLayout(carta1Nodes, .92, .84, 70);
+    compactLayout(carta2Nodes, .92, .88, 55);
+    compactLayout(carta3Nodes, .86, .82, 65);
 
     const maps = {
-      carta1: { svg: "#svg-carta1", nodes: carta1Nodes, links: carta1Links, viewBox: [-900, -700, 1800, 1450], tour: ["c1","rsc","gestion","conflicto","negociacion","sostenibilidad"] },
-      carta2: { svg: "#svg-carta2", nodes: carta2Nodes, links: carta2Links, viewBox: [-760, -610, 1520, 1220], tour: ["c2","gestion2","conflicto2","maxneef2","rsc2","etica2","mitchell2","gardner2","negociacion2","sost2"] },
-      carta3: { svg: "#svg-carta3", nodes: carta3Nodes, links: carta3Links, viewBox: [-780, -860, 1560, 1540], tour: ["c3","nucleo","tension","trad","gri","ebc","balance","ecopol","fuerte"] }
+      carta1: { svg: "#svg-carta1", nodes: carta1Nodes, links: carta1Links, viewBox: [-1080, -820, 2160, 1660], tour: ["c1","rsc","gestion","conflicto","negociacion","sostenibilidad"] },
+      carta2: { svg: "#svg-carta2", nodes: carta2Nodes, links: carta2Links, viewBox: [-920, -760, 1840, 1460], tour: ["c2","gestion2","conflicto2","maxneef2","rsc2","etica2","mitchell2","gardner2","negociacion2","sost2"] },
+      carta3: { svg: "#svg-carta3", nodes: carta3Nodes, links: carta3Links, viewBox: [-900, -960, 1800, 1680], tour: ["c3","nucleo","tension","trad","gri","ebc","balance","ecopol","fuerte"] }
     };
 
     const state = {};
@@ -947,7 +962,6 @@
         document.querySelectorAll(".map-section").forEach(s => s.classList.remove("active"));
         tab.classList.add("active");
         document.getElementById(tab.dataset.tab).classList.add("active");
-        stopTours();
         setTimeout(() => centerView(tab.dataset.tab), 80);
       });
     });
@@ -997,11 +1011,11 @@
 
       const byId = new Map(cfg.nodes.map(n => [n.id, n]));
       const zoom = d3.zoom()
-        .scaleExtent([0.35, 2.8])
+        .scaleExtent([0.45, 5])
         .on("zoom", event => viewport.attr("transform", event.transform));
 
       svg.call(zoom);
-      state[key] = { svg, zoom, byId, timer: null, activeTour: false, tourIndex: -1, cfg };
+      state[key] = { svg, zoom, byId, tourIndex: -1, cfg };
 
       const edges = linkLayer.selectAll(".edge")
         .data(cfg.links)
@@ -1028,11 +1042,9 @@
         .attr("transform", d => `translate(${d.x},${d.y})`)
         .on("click", (event, d) => {
           event.stopPropagation();
-          stopTours();
           const tourIndex = cfg.tour.indexOf(d.id);
           if (tourIndex >= 0) state[key].tourIndex = tourIndex;
           openPanel(d);
-          focusNode(key, d.id, 1.15, 650);
         });
 
       nodes.each(function(d) {
@@ -1045,8 +1057,8 @@
             .attr("stroke", d.category === "central" ? "#9fd3ff" : "#fff")
             .attr("stroke-width", 2.4)
             .attr("filter", "drop-shadow(0 0 18px rgba(159,211,255,.55))");
-          g.selectAll("text").data(wrapLabel(d.label, 28)).enter().append("text")
-            .attr("y", (_, i, arr) => (i - (arr.length - 1) / 2) * 19)
+          g.selectAll("text").data(wrapLabel(d.label, 30)).enter().append("text")
+            .attr("y", (_, i, arr) => (i - (arr.length - 1) / 2) * 22)
             .attr("fill", d.category === "central" ? "#08101a" : "#fff")
             .style("fill", d.category === "central" ? "#08101a" : "#fff")
             .text(t => t);
@@ -1060,10 +1072,10 @@
             .attr("fill", d.color)
             .attr("stroke", "rgba(255,255,255,.34)")
             .attr("stroke-width", 1.2);
-          const lines = wrapLabel(d.label, d.level === "leaf" ? 24 : 27);
+          const lines = wrapLabel(d.label, d.level === "leaf" ? 26 : 29);
           g.selectAll(".label-line").data(lines).enter().append("text")
             .attr("class", d.level === "leaf" ? "small-text" : "")
-            .attr("y", (_, i, arr) => (i - (arr.length - 1) / 2) * (d.level === "leaf" ? 16 : 18))
+            .attr("y", (_, i, arr) => (i - (arr.length - 1) / 2) * (d.level === "leaf" ? 18 : 21))
             .text(t => t);
           if (d.priority) addPriorityBadge(g, d);
         }
@@ -1072,15 +1084,14 @@
       const shell = document.querySelector(`[data-map="${key}"] .map-shell`);
       const dock = shell.querySelector(".control-dock");
       dock.innerHTML = `
-        <button class="control-btn" data-action="tour">Recorrido automatico</button>
+        <span class="control-hint">Flechas: recorrer nodos</span>
         <button class="control-btn" data-action="center">Centrar vista</button>
         <button class="control-btn" data-action="in">Zoom +</button>
         <button class="control-btn" data-action="out">Zoom -</button>
       `;
       dock.querySelector('[data-action="center"]').addEventListener("click", () => centerView(key));
-      dock.querySelector('[data-action="in"]').addEventListener("click", () => svg.transition().duration(240).call(zoom.scaleBy, 1.25));
-      dock.querySelector('[data-action="out"]').addEventListener("click", () => svg.transition().duration(240).call(zoom.scaleBy, .8));
-      dock.querySelector('[data-action="tour"]').addEventListener("click", () => startTour(key));
+      dock.querySelector('[data-action="in"]').addEventListener("click", () => svg.transition().duration(240).call(zoom.scaleBy, 1.35));
+      dock.querySelector('[data-action="out"]').addEventListener("click", () => svg.transition().duration(240).call(zoom.scaleBy, .74));
 
       const legend = shell.querySelector(".legend");
       legend.innerHTML = [
@@ -1178,7 +1189,7 @@
       st.svg.transition().duration(520).call(st.zoom.transform, d3.zoomIdentity);
     }
 
-    function focusNode(key, id, scale = 1.2, duration = 720) {
+    function focusNode(key, id, scale = 1.6, duration = 720) {
       const st = state[key];
       const n = st.byId.get(id);
       if (!n) return;
@@ -1186,31 +1197,13 @@
       if (box.width < 20 || box.height < 20) return;
       const [vx, vy, vw, vh] = st.cfg.viewBox;
       const tx = (vx + vw / 2) - scale * n.x;
-      const ty = (vy + vh / 2) - scale * n.y;
+      const ty = (vy + vh / 2 + 130) - scale * n.y;
       st.svg.transition().duration(duration).ease(d3.easeCubicInOut).call(st.zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
-    }
-
-    function startTour(key) {
-      stopTours();
-      const st = state[key];
-      st.activeTour = true;
-      st.tourIndex = -1;
-      const run = () => {
-        if (!st.activeTour) return;
-        st.tourIndex = (st.tourIndex + 1) % st.cfg.tour.length;
-        const id = st.cfg.tour[st.tourIndex];
-        focusNode(key, id, 1.18, 900);
-        const node = st.byId.get(id);
-        if (node) openPanel(node);
-        st.timer = setTimeout(run, 2600);
-      };
-      run();
     }
 
     function stepTour(key, direction) {
       const st = state[key];
       if (!st || !st.cfg.tour.length) return;
-      stopTours();
       const total = st.cfg.tour.length;
       if (st.tourIndex < 0) {
         st.tourIndex = direction > 0 ? 0 : total - 1;
@@ -1221,17 +1214,10 @@
       const node = st.byId.get(id);
       if (node) {
         openPanel(node);
-        focusNode(key, id, 1.18, 650);
+        focusNode(key, id, 1.6, 650);
       }
     }
 
-    function stopTours() {
-      Object.values(state).forEach(st => {
-        st.activeTour = false;
-        if (st.timer) clearTimeout(st.timer);
-        st.timer = null;
-      });
-    }
   </script>
 </body>
 </html>

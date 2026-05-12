@@ -897,6 +897,26 @@
 
     Object.entries(maps).forEach(([key, cfg]) => renderMap(key, cfg));
 
+    document.addEventListener("keydown", event => {
+      const tag = document.activeElement && document.activeElement.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+
+      if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+        event.preventDefault();
+        stepTour(getActiveMapKey(), 1);
+      }
+
+      if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+        event.preventDefault();
+        stepTour(getActiveMapKey(), -1);
+      }
+    });
+
+    function getActiveMapKey() {
+      const active = document.querySelector(".map-section.active");
+      return active ? active.dataset.map : "carta1";
+    }
+
     function renderMap(key, cfg) {
       const svg = d3.select(cfg.svg);
       const [vx, vy, vw, vh] = cfg.viewBox;
@@ -924,7 +944,7 @@
         .on("zoom", event => viewport.attr("transform", event.transform));
 
       svg.call(zoom);
-      state[key] = { svg, zoom, byId, timer: null, activeTour: false, cfg };
+      state[key] = { svg, zoom, byId, timer: null, activeTour: false, tourIndex: -1, cfg };
 
       const edges = linkLayer.selectAll(".edge")
         .data(cfg.links)
@@ -952,6 +972,8 @@
         .on("click", (event, d) => {
           event.stopPropagation();
           stopTours();
+          const tourIndex = cfg.tour.indexOf(d.id);
+          if (tourIndex >= 0) state[key].tourIndex = tourIndex;
           openPanel(d);
           focusNode(key, d.id, 1.15, 650);
         });
@@ -1115,17 +1137,35 @@
       stopTours();
       const st = state[key];
       st.activeTour = true;
-      let index = 0;
+      st.tourIndex = -1;
       const run = () => {
         if (!st.activeTour) return;
-        const id = st.cfg.tour[index % st.cfg.tour.length];
+        st.tourIndex = (st.tourIndex + 1) % st.cfg.tour.length;
+        const id = st.cfg.tour[st.tourIndex];
         focusNode(key, id, 1.18, 900);
         const node = st.byId.get(id);
         if (node) openPanel(node);
-        index += 1;
         st.timer = setTimeout(run, 2600);
       };
       run();
+    }
+
+    function stepTour(key, direction) {
+      const st = state[key];
+      if (!st || !st.cfg.tour.length) return;
+      stopTours();
+      const total = st.cfg.tour.length;
+      if (st.tourIndex < 0) {
+        st.tourIndex = direction > 0 ? 0 : total - 1;
+      } else {
+        st.tourIndex = (st.tourIndex + direction + total) % total;
+      }
+      const id = st.cfg.tour[st.tourIndex];
+      const node = st.byId.get(id);
+      if (node) {
+        openPanel(node);
+        focusNode(key, id, 1.18, 650);
+      }
     }
 
     function stopTours() {

@@ -156,21 +156,21 @@
 
     .links path {
       fill: none;
-      stroke: rgba(190, 204, 229, .3);
-      stroke-width: 1.8;
+      stroke: rgba(205, 220, 245, .68);
+      stroke-width: 2.35;
       marker-end: url(#arrow);
       transition: stroke .2s ease, stroke-width .2s ease;
     }
 
     .edge-label {
-      opacity: 0;
+      opacity: .78;
       pointer-events: none;
-      font-size: 12px;
-      font-weight: 760;
-      fill: #f8c14a;
+      font-size: 13.5px;
+      font-weight: 850;
+      fill: #ffd978;
       paint-order: stroke;
-      stroke: #10131d;
-      stroke-width: 5px;
+      stroke: #080b12;
+      stroke-width: 7px;
       stroke-linejoin: round;
       transition: opacity .15s ease;
     }
@@ -184,23 +184,31 @@
 
     .node text {
       fill: white;
-      font-size: 18px;
-      font-weight: 820;
+      font-size: 19px;
+      font-weight: 840;
       text-anchor: middle;
       dominant-baseline: middle;
       pointer-events: none;
     }
 
-    .node .small-text { font-size: 15.5px; font-weight: 790; }
+    .node .small-text { font-size: 16.5px; font-weight: 810; }
     .node .badge-text { font-size: 12px; font-weight: 900; fill: #07111d; }
 
     .edge.soft path {
-      stroke: rgba(190, 204, 229, .18);
-      stroke-width: 1.35;
+      stroke: rgba(190, 204, 229, .16);
+      stroke-width: 1.15;
     }
 
     .edge.soft .edge-label {
+      opacity: 0;
       fill: #b9c4d8;
+    }
+
+    .edge.soft:hover .edge-label { opacity: 1; }
+
+    .edge.dashed .edge-label {
+      opacity: .48;
+      font-size: 12px;
     }
 
     .control-dock {
@@ -462,7 +470,7 @@
   <header>
     <div>
       <h1>Conciencia Organizacional y Liderazgo 2 - Cartas de Navegacion</h1>
-      <div class="subtitle">Control IT S.A.S. · Equipo #8 · ESIC University</div>
+      <div class="subtitle">Equipo #3 · ESIC University · Cartas de Navegacion</div>
     </div>
     <nav class="tabs" aria-label="Cartas de navegacion">
       <button class="tab active" data-tab="carta1">Carta 1</button>
@@ -485,7 +493,7 @@
       </div>
       <div class="map-explanation">
         <h2>Lectura academica de la Carta 1</h2>
-        <p>Este mapa organiza la relacion entre responsabilidad social corporativa, teoria de stakeholders y conflicto de interes. Para Control IT S.A.S., permite entender que clientes, equipo interno, proveedores, comunidad y Estado no son actores aislados, sino grupos que influyen en la continuidad del servicio, la confianza y la legitimidad de las decisiones tecnologicas. La carta concluye que una gestion responsable requiere dialogo, priorizacion etica y negociacion para transformar tensiones en sostenibilidad organizacional.</p>
+        <p>Este mapa organiza la relacion entre responsabilidad social corporativa, teoria de stakeholders y conflicto de interes. Permite entender que clientes, equipo interno, proveedores, comunidad y Estado no son actores aislados, sino grupos que influyen en la continuidad organizacional, la confianza y la legitimidad de las decisiones. La carta concluye que una gestion responsable requiere dialogo, priorizacion etica y negociacion para transformar tensiones en sostenibilidad organizacional.</p>
       </div>
     </section>
 
@@ -502,7 +510,7 @@
       </div>
       <div class="map-explanation">
         <h2>Lectura academica de la Carta 2</h2>
-        <p>La segunda carta presenta una vision radial y comparativa de los stakeholders y sus conflictos potenciales. En Control IT S.A.S., esta lectura ayuda a priorizar actores segun poder, legitimidad, urgencia, interes, cooperacion y amenaza, evitando que la empresa responda igual a necesidades distintas. El mapa muestra que la estrategia de relacionamiento debe diferenciar clientes empresariales, proveedores tecnologicos, equipo interno y entorno social para prevenir tensiones y fortalecer decisiones sostenibles.</p>
+        <p>La segunda carta presenta una vision radial y comparativa de los stakeholders y sus conflictos potenciales. Esta lectura ayuda a priorizar actores segun poder, legitimidad, urgencia, interes, cooperacion y amenaza, evitando que una organizacion responda igual a necesidades distintas. El mapa muestra que la estrategia de relacionamiento debe diferenciar clientes, proveedores, equipo interno y entorno social para prevenir tensiones y fortalecer decisiones sostenibles.</p>
       </div>
     </section>
 
@@ -519,7 +527,7 @@
       </div>
       <div class="map-explanation">
         <h2>Lectura academica de la Carta 3</h2>
-        <p>La tercera carta explica la accountability como rendicion de cuentas orientada a reducir asimetrias de informacion entre la organizacion y sus stakeholders. En Control IT S.A.S., el mapa conecta transparencia, reportabilidad, estandares de sostenibilidad, Economia del Bien Comun y Ecologia Politica. La conclusion central es que informar no basta: los reportes, indicadores y decisiones deben reflejar practicas reales, responsabilidad etica y compromiso con el bienestar comun.</p>
+        <p>La tercera carta explica la accountability como rendicion de cuentas orientada a reducir asimetrias de informacion entre la organizacion y sus stakeholders. El mapa conecta transparencia, reportabilidad, estandares de sostenibilidad, Economia del Bien Comun y Ecologia Politica. La conclusion central es que informar no basta: los reportes, indicadores y decisiones deben reflejar practicas reales, responsabilidad etica y compromiso con el bienestar comun.</p>
       </div>
     </section>
   </main>
@@ -536,7 +544,7 @@
   </aside>
 
   <footer>
-    Integrantes del equipo: Isa · Thomas · Mafe · Equipo #8. Proyecto academico para Control IT S.A.S. y ESIC University.
+    Integrantes del equipo: Isa · Thomas · Mafe · Equipo #3. Proyecto academico de Cartas de Navegacion para ESIC University.
   </footer>
 
   <script>
@@ -637,7 +645,7 @@
         category: "Nodo central",
         explanation: "Este concepto integra tres discusiones centrales de la carta: la responsabilidad de la empresa por sus impactos, la identificacion de los grupos afectados y la gestion de tensiones que aparecen cuando los intereses no coinciden. La lectura muestra que la sostenibilidad organizacional no se logra solo con resultados financieros, sino con relaciones transparentes, dialogicas y responsables.",
         curious: "La teoria de stakeholders cambio la pregunta clasica de la empresa: no solo importa cuanto gana, sino quien queda afectado por la forma en que gana.",
-        app: "En Control IT S.A.S. este nodo sirve como marco para revisar decisiones de servicio, datos, tecnologia y relacionamiento con clientes. La empresa debe mapear impactos sobre empleados, clientes, proveedores, comunidad y Estado antes de definir prioridades.",
+        app: "Este nodo sirve como marco para revisar decisiones organizacionales, relacionamiento con stakeholders y responsabilidades frente al entorno. La organizacion debe mapear impactos sobre empleados, clientes, proveedores, comunidad y Estado antes de definir prioridades.",
         links: references.rsc,
         videos: []
       },
@@ -646,7 +654,7 @@
         category: "Nodo central",
         explanation: "La carta dos presenta una mirada ampliada: los stakeholders se analizan por influencia, legitimidad, urgencia, poder, interes, cooperacion y amenaza. El conflicto aparece como una consecuencia posible de necesidades no satisfechas, contradicciones y fallas de comunicacion.",
         curious: "Un stakeholder con poco poder formal puede volverse prioritario si su urgencia es alta y su reclamo tiene legitimidad social.",
-        app: "Para Control IT S.A.S., la lectura permite crear una matriz de prioridad estrategica y anticipar tensiones antes de que afecten proyectos, reputacion o continuidad operativa.",
+        app: "La lectura permite crear una matriz de prioridad estrategica y anticipar tensiones antes de que afecten proyectos, reputacion o continuidad operativa.",
         links: references.stakeholder,
         videos: videoByCategory.stakeholder
       },
@@ -655,7 +663,7 @@
         category: "Nodo central",
         explanation: "La accountability es una obligacion etica de transparencia que reduce asimetrias de informacion entre la organizacion y sus stakeholders. La carta enfatiza que los reportes de sostenibilidad deben corresponder con el desempeno real, no solo con la imagen que la empresa desea proyectar.",
         curious: "La rendicion de cuentas puede legitimar a una organizacion, pero tambien puede invalidarla cuando la evidencia revela distancia entre discurso y practica.",
-        app: "Control IT S.A.S. puede aplicar accountability mediante indicadores claros de calidad, privacidad, servicio, impacto ambiental y bienestar laboral, comunicados de forma verificable.",
+        app: "La accountability puede aplicarse mediante indicadores claros de calidad, transparencia, impacto ambiental y bienestar laboral, comunicados de forma verificable.",
         links: references.accountability,
         videos: videoByCategory.accountability
       }
@@ -716,27 +724,27 @@
 
     function appByCategory(category, label) {
       const map = {
-        rsc: "En Control IT S.A.S. este concepto exige revisar si los servicios tecnologicos generan valor para clientes y empleados sin trasladar costos sociales o ambientales invisibles.",
+        rsc: "Este concepto exige revisar si la actividad organizacional genera valor para sus stakeholders sin trasladar costos sociales o ambientales invisibles.",
         stakeholder: "La empresa puede usarlo para identificar usuarios, clientes, talento tecnico, proveedores, aliados, entidades publicas y comunidad como actores con expectativas legitimas.",
-        gestion: "En Control IT S.A.S. ayuda a convertir expectativas dispersas en planes de comunicacion, seguimiento, mitigacion de riesgos y mejora de servicio.",
+        gestion: "Ayuda a convertir expectativas dispersas en planes de comunicacion, seguimiento, mitigacion de riesgos y mejora organizacional.",
         segmentacion: "La aplicacion practica es priorizar a quien informar, satisfacer, involucrar o defender segun su poder, interes, amenaza y cooperacion.",
-        etica: "Control IT S.A.S. puede fortalecer su liderazgo si documenta criterios eticos, consulta a afectados y explica las razones de sus decisiones.",
+        etica: "Una organizacion puede fortalecer su liderazgo si documenta criterios eticos, consulta a afectados y explica las razones de sus decisiones.",
         conflicto: "La empresa debe leer quejas, retrasos, rotacion o fricciones con clientes como senales de necesidades y contradicciones que deben transformarse.",
         proceso: "Sirve para diagnosticar si una tension esta en fase temprana, emocional, conductual o de resultado, y asi intervenir con la herramienta adecuada.",
         negociacion: "En proyectos de tecnologia, el MAPAN ayuda a negociar alcance, tiempos, costos y calidad sin sacrificar la relacion con el cliente.",
         maxneef: "La matriz de necesidades ayuda a evaluar si el trabajo tecnologico protege identidad, participacion, entendimiento y libertad de empleados y usuarios.",
-        sostenibilidad: "Control IT S.A.S. puede traducirlo en indicadores de continuidad financiera, bienestar laboral, seguridad digital y uso responsable de recursos.",
+        sostenibilidad: "Puede traducirse en indicadores de continuidad financiera, bienestar laboral, transparencia y uso responsable de recursos.",
         accountability: "La empresa puede reportar resultados de forma verificable: niveles de servicio, seguridad de datos, emisiones indirectas, formacion y satisfaccion de stakeholders.",
-        estandar: "Los estandares orientan reportes y sistemas de gestion que vuelven comparable y auditable el desempeno de Control IT S.A.S.",
-        ebc: "La EBC invita a Control IT S.A.S. a medir su exito no solo por rentabilidad, sino por dignidad, solidaridad, justicia, sostenibilidad y democracia.",
-        ecologia: "En Control IT S.A.S. la ecologia politica abre preguntas sobre consumo energetico, hardware, datos, brecha digital y comunidades afectadas por la tecnologia."
+        estandar: "Los estandares orientan reportes y sistemas de gestion que vuelven comparable y auditable el desempeno organizacional.",
+        ebc: "La EBC invita a medir el exito no solo por rentabilidad, sino por dignidad, solidaridad, justicia, sostenibilidad y democracia.",
+        ecologia: "La ecologia politica abre preguntas sobre consumo de recursos, limites naturales, brecha social y comunidades afectadas por las decisiones productivas."
       };
-      return map[category] || `En Control IT S.A.S., "${label}" se puede convertir en criterio de diagnostico y mejora para decisiones internas y externas.`;
+      return map[category] || `"${label}" se puede convertir en criterio de diagnostico y mejora para decisiones internas y externas.`;
     }
 
     function node(id, label, x, y, category, level, note, app, extra = {}) {
-      const minW = level === "central" ? 430 : level === "main" ? 305 : 248;
-      const minH = level === "central" ? 132 : level === "main" ? 96 : 70;
+      const minW = level === "central" ? 455 : level === "main" ? 325 : 268;
+      const minH = level === "central" ? 144 : level === "main" ? 104 : 76;
       return {
         id, label, x, y, category, level,
         color: colors[category] || colors.hoja,
@@ -755,6 +763,17 @@
       nodes.forEach(n => {
         n.x = Math.round(n.x * scaleX);
         n.y = Math.round(n.y * scaleY + offsetY);
+      });
+      return nodes;
+    }
+
+    function setPositions(nodes, positions) {
+      const byId = new Map(nodes.map(n => [n.id, n]));
+      Object.entries(positions).forEach(([id, point]) => {
+        const n = byId.get(id);
+        if (!n) return;
+        n.x = point[0];
+        n.y = point[1];
       });
       return nodes;
     }
@@ -931,21 +950,47 @@
       link("c3", "nucleo", "sostiene"), link("c3", "trad", "se operacionaliza mediante"), link("c3", "ebc", "se transforma con"), link("c3", "ecopol", "se critica desde"),
       link("c3", "tension", "genera tension entre"),
       link("nucleo", "defacc", "define", { soft: true }), link("nucleo", "instrumental", "puede adoptar", { soft: true }), link("instrumental", "greenwashing", "riesgo", { soft: true }), link("nucleo", "eticoacc", "contrasta con", { soft: true }),
-      link("eticoacc", "gri", "impulsa"), link("eticoacc", "iso", "impulsa"), link("eticoacc", "pacto", "impulsa"),
+      link("eticoacc", "gri", "impulsa", { dashed: true }), link("eticoacc", "iso", "impulsa", { dashed: true }), link("eticoacc", "pacto", "impulsa", { dashed: true }),
       link("trad", "gri", "reporting", { soft: true }), link("trad", "pacto", "reporting", { soft: true }), link("trad", "iso", "compliance", { soft: true }), link("trad", "sa8000", "compliance", { soft: true }), link("trad", "aa1000", "validacion", { soft: true }),
-      link("trad", "crisis", "son insuficientes ante"),
+      link("trad", "crisis", "insuficientes ante", { dashed: true }),
       link("ebc", "filosofia", "propone", { soft: true }), link("ebc", "balance", "usa", { soft: true }), link("ebc", "matriz", "aplica"), link("matriz", "valores", "cruza con", { soft: true }),
       link("ecopol", "cosificacion", "denuncia", { soft: true }), link("ecopol", "fuerte", "fundamenta"), link("fuerte", "limites", "reconoce", { soft: true }), link("ecopol", "otredad", "exige", { soft: true }), link("ecopol", "praxis", "actua mediante", { soft: true })
     ];
 
     compactLayout(carta1Nodes, .92, .84, 70);
     compactLayout(carta2Nodes, .92, .88, 55);
-    compactLayout(carta3Nodes, .86, .82, 65);
+    setPositions(carta3Nodes, {
+      c3: [0, 0],
+      nucleo: [0, -350],
+      tension: [0, -185],
+      defacc: [-360, -560],
+      instrumental: [0, -600],
+      greenwashing: [360, -560],
+      eticoacc: [-360, -395],
+      trad: [620, -20],
+      aa1000: [460, -285],
+      gri: [820, -245],
+      pacto: [850, -25],
+      iso: [820, 205],
+      sa8000: [485, 285],
+      crisis: [385, 125],
+      ebc: [0, 430],
+      valores: [0, 600],
+      filosofia: [-360, 650],
+      balance: [0, 760],
+      matriz: [360, 650],
+      ecopol: [-620, -20],
+      praxis: [-820, -285],
+      cosificacion: [-895, -90],
+      fuerte: [-895, 120],
+      limites: [-725, 330],
+      otredad: [-430, 290]
+    });
 
     const maps = {
-      carta1: { svg: "#svg-carta1", nodes: carta1Nodes, links: carta1Links, viewBox: [-1080, -820, 2160, 1660], tour: ["c1","rsc","gestion","conflicto","negociacion","sostenibilidad"] },
-      carta2: { svg: "#svg-carta2", nodes: carta2Nodes, links: carta2Links, viewBox: [-920, -760, 1840, 1460], tour: ["c2","gestion2","conflicto2","maxneef2","rsc2","etica2","mitchell2","gardner2","negociacion2","sost2"] },
-      carta3: { svg: "#svg-carta3", nodes: carta3Nodes, links: carta3Links, viewBox: [-900, -960, 1800, 1680], tour: ["c3","nucleo","tension","trad","gri","ebc","balance","ecopol","fuerte"] }
+      carta1: { svg: "#svg-carta1", nodes: carta1Nodes, links: carta1Links, viewBox: [-1080, -820, 2160, 1660], initialScale: 1.18, tour: ["c1","rsc","gestion","conflicto","negociacion","sostenibilidad"] },
+      carta2: { svg: "#svg-carta2", nodes: carta2Nodes, links: carta2Links, viewBox: [-920, -760, 1840, 1460], initialScale: 1.18, tour: ["c2","gestion2","conflicto2","maxneef2","rsc2","etica2","mitchell2","gardner2","negociacion2","sost2"] },
+      carta3: { svg: "#svg-carta3", nodes: carta3Nodes, links: carta3Links, viewBox: [-1070, -720, 2140, 1560], initialScale: 1.65, tour: ["c3","nucleo","tension","trad","gri","ebc","balance","ecopol","fuerte"] }
     };
 
     const state = {};
@@ -953,20 +998,25 @@
     const panelTitle = document.getElementById("panelTitle");
     const panelCategory = document.getElementById("panelCategory");
     const panelBody = document.getElementById("panelBody");
+    const validMapKeys = Object.keys(maps);
+    const initialMapKey = validMapKeys.includes(location.hash.replace("#", "")) ? location.hash.replace("#", "") : "carta1";
 
     document.getElementById("closePanel").addEventListener("click", closePanel);
 
     document.querySelectorAll(".tab").forEach(tab => {
-      tab.addEventListener("click", () => {
-        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-        document.querySelectorAll(".map-section").forEach(s => s.classList.remove("active"));
-        tab.classList.add("active");
-        document.getElementById(tab.dataset.tab).classList.add("active");
-        setTimeout(() => centerView(tab.dataset.tab), 80);
-      });
+      tab.addEventListener("click", () => activateMap(tab.dataset.tab, true));
     });
 
     Object.entries(maps).forEach(([key, cfg]) => renderMap(key, cfg));
+    activateMap(initialMapKey, false);
+
+    function activateMap(key, updateHash) {
+      if (!validMapKeys.includes(key)) return;
+      document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === key));
+      document.querySelectorAll(".map-section").forEach(s => s.classList.toggle("active", s.dataset.map === key));
+      if (updateHash) history.replaceState(null, "", `#${key}`);
+      setTimeout(() => centerView(key), 80);
+    }
 
     document.addEventListener("keydown", event => {
       const tag = document.activeElement && document.activeElement.tagName;
@@ -998,12 +1048,12 @@
         .attr("viewBox", "0 -5 10 10")
         .attr("refX", 10)
         .attr("refY", 0)
-        .attr("markerWidth", 7)
-        .attr("markerHeight", 7)
+        .attr("markerWidth", 10)
+        .attr("markerHeight", 10)
         .attr("orient", "auto")
         .append("path")
         .attr("d", "M0,-5L10,0L0,5")
-        .attr("fill", "rgba(190,204,229,.52)");
+        .attr("fill", "rgba(225,236,255,.9)");
 
       const viewport = svg.append("g").attr("class", "viewport");
       const linkLayer = viewport.append("g").attr("class", "links");
@@ -1021,11 +1071,11 @@
         .data(cfg.links)
         .enter()
         .append("g")
-        .attr("class", d => `edge${d.soft ? " soft" : ""}`);
+        .attr("class", d => `edge${d.soft ? " soft" : ""}${d.dashed ? " dashed" : ""}`);
 
       edges.append("path")
         .attr("d", d => pathFor(byId.get(d.source), byId.get(d.target)))
-        .attr("marker-end", `url(#arrow-${key})`)
+        .attr("marker-end", d => d.soft ? null : `url(#arrow-${key})`)
         .attr("stroke-dasharray", d => d.dashed ? "7 7" : null);
 
       edges.append("text")
@@ -1057,8 +1107,8 @@
             .attr("stroke", d.category === "central" ? "#9fd3ff" : "#fff")
             .attr("stroke-width", 2.4)
             .attr("filter", "drop-shadow(0 0 18px rgba(159,211,255,.55))");
-          g.selectAll("text").data(wrapLabel(d.label, 30)).enter().append("text")
-            .attr("y", (_, i, arr) => (i - (arr.length - 1) / 2) * 22)
+          g.selectAll("text").data(wrapLabel(d.label, 32)).enter().append("text")
+            .attr("y", (_, i, arr) => (i - (arr.length - 1) / 2) * 24)
             .attr("fill", d.category === "central" ? "#08101a" : "#fff")
             .style("fill", d.category === "central" ? "#08101a" : "#fff")
             .text(t => t);
@@ -1072,10 +1122,10 @@
             .attr("fill", d.color)
             .attr("stroke", "rgba(255,255,255,.34)")
             .attr("stroke-width", 1.2);
-          const lines = wrapLabel(d.label, d.level === "leaf" ? 26 : 29);
+          const lines = wrapLabel(d.label, d.level === "leaf" ? 29 : 31);
           g.selectAll(".label-line").data(lines).enter().append("text")
             .attr("class", d.level === "leaf" ? "small-text" : "")
-            .attr("y", (_, i, arr) => (i - (arr.length - 1) / 2) * (d.level === "leaf" ? 18 : 21))
+            .attr("y", (_, i, arr) => (i - (arr.length - 1) / 2) * (d.level === "leaf" ? 20 : 23))
             .text(t => t);
           if (d.priority) addPriorityBadge(g, d);
         }
@@ -1126,14 +1176,28 @@
     }
 
     function pathFor(a, b) {
-      const dx = b.x - a.x;
-      const dy = b.y - a.y;
-      const curve = Math.min(120, Math.max(40, Math.hypot(dx, dy) * .18));
-      const cx1 = a.x + dx * .42 - dy / Math.hypot(dx || 1, dy || 1) * curve;
-      const cy1 = a.y + dy * .42 + dx / Math.hypot(dx || 1, dy || 1) * curve;
-      const cx2 = a.x + dx * .62 - dy / Math.hypot(dx || 1, dy || 1) * curve;
-      const cy2 = a.y + dy * .62 + dx / Math.hypot(dx || 1, dy || 1) * curve;
-      return `M${a.x},${a.y} C${cx1},${cy1} ${cx2},${cy2} ${b.x},${b.y}`;
+      const start = edgePoint(a, b);
+      const end = edgePoint(b, a);
+      const dx = end.x - start.x;
+      const dy = end.y - start.y;
+      const horizontal = Math.abs(dx) >= Math.abs(dy);
+      const cx1 = horizontal ? start.x + dx * .46 : start.x;
+      const cy1 = horizontal ? start.y : start.y + dy * .46;
+      const cx2 = horizontal ? end.x - dx * .46 : end.x;
+      const cy2 = horizontal ? end.y : end.y - dy * .46;
+      return `M${start.x},${start.y} C${cx1},${cy1} ${cx2},${cy2} ${end.x},${end.y}`;
+    }
+
+    function edgePoint(from, to) {
+      const dx = to.x - from.x;
+      const dy = to.y - from.y;
+      const halfW = from.w / 2 + 10;
+      const halfH = from.h / 2 + 10;
+      const ratio = Math.max(Math.abs(dx) / halfW, Math.abs(dy) / halfH, 1);
+      return {
+        x: Math.round(from.x + dx / ratio),
+        y: Math.round(from.y + dy / ratio)
+      };
     }
 
     function wrapLabel(label, maxChars) {
@@ -1160,7 +1224,7 @@
       panelBody.innerHTML = `
         <p>${detail.explanation}</p>
         <div class="curious">💡 ${detail.curious}</div>
-        <h3>Aplicacion en Control IT S.A.S.</h3>
+        <h3>Aplicacion en las Cartas de Navegacion</h3>
         <p>${detail.app}</p>
         ${detail.videos && detail.videos.length ? `<h3>Video recomendado</h3>${detail.videos.map(v => `<iframe class="video-frame" src="${v}" title="Video sobre ${escapeHtml(detail.title)}" allowfullscreen loading="lazy"></iframe>`).join("")}` : ""}
         <h3>Referencias</h3>
@@ -1186,7 +1250,12 @@
       const svgEl = st.svg.node();
       const box = svgEl.getBoundingClientRect();
       if (box.width < 20 || box.height < 20) return;
-      st.svg.transition().duration(520).call(st.zoom.transform, d3.zoomIdentity);
+      const [vx, vy, vw, vh] = st.cfg.viewBox;
+      const scale = st.cfg.initialScale || 1;
+      const cx = vx + vw / 2;
+      const cy = vy + vh / 2;
+      const transform = d3.zoomIdentity.translate(cx - scale * cx, cy - scale * cy).scale(scale);
+      st.svg.transition().duration(520).call(st.zoom.transform, transform);
     }
 
     function focusNode(key, id, scale = 1.6, duration = 720) {

@@ -1,0 +1,1140 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Conciencia Organizacional y Liderazgo 2 - Cartas de Navegacion</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%2324b47e'/%3E%3Cpath d='M8 17h16M16 8v16' stroke='white' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --panel: #1a1d27;
+      --panel-2: #141824;
+      --line: rgba(188, 198, 219, .24);
+      --text: #f5f7fb;
+      --muted: #a8b2c7;
+      --amber: #f8c14a;
+      --blue: #2f80ed;
+      --green: #24b47e;
+      --orange: #f97316;
+      --purple: #8b5cf6;
+      --red: #ef4444;
+      --cyan: #22d3ee;
+      --pink: #ec4899;
+      --brown: #9a6a45;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 14% 12%, rgba(47,128,237,.16), transparent 30%),
+        radial-gradient(circle at 80% 8%, rgba(36,180,126,.12), transparent 28%),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+      overflow-x: hidden;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 20px;
+      align-items: center;
+      padding: 18px clamp(18px, 4vw, 48px);
+      background: rgba(15, 17, 23, .9);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(20px, 3.2vw, 36px);
+      line-height: 1.05;
+      font-weight: 780;
+    }
+
+    .subtitle {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      padding: 4px;
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 999px;
+      background: rgba(255,255,255,.04);
+    }
+
+    .tab {
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 14px;
+      color: var(--muted);
+      background: transparent;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: color .2s ease, background .2s ease, transform .2s ease;
+    }
+
+    .tab:hover { color: var(--text); transform: translateY(-1px); }
+    .tab.active { color: #08101a; background: #f5f7fb; }
+
+    main {
+      min-height: calc(100vh - 126px);
+      padding: clamp(12px, 2vw, 24px);
+    }
+
+    .map-section { display: none; animation: riseIn .45s ease both; }
+    .map-section.active { display: block; }
+
+    .map-shell {
+      position: relative;
+      min-height: calc(100vh - 180px);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 8px;
+      overflow: hidden;
+      background:
+        linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px),
+        rgba(11, 14, 22, .82);
+      background-size: 36px 36px;
+      box-shadow: 0 30px 90px rgba(0,0,0,.42);
+    }
+
+    .map-meta {
+      position: absolute;
+      top: 18px;
+      left: 18px;
+      z-index: 4;
+      max-width: min(540px, calc(100% - 36px));
+      pointer-events: none;
+    }
+
+    .map-kicker {
+      color: var(--amber);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .map-title {
+      margin-top: 6px;
+      font-size: clamp(18px, 2.2vw, 26px);
+      font-weight: 780;
+    }
+
+    .map-note {
+      margin-top: 6px;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 14px;
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      height: calc(100vh - 180px);
+      min-height: 620px;
+      cursor: grab;
+      touch-action: none;
+    }
+
+    svg:active { cursor: grabbing; }
+
+    .links path {
+      fill: none;
+      stroke: rgba(190, 204, 229, .3);
+      stroke-width: 1.8;
+      marker-end: url(#arrow);
+      transition: stroke .2s ease, stroke-width .2s ease;
+    }
+
+    .edge-label {
+      opacity: 0;
+      pointer-events: none;
+      font-size: 12px;
+      font-weight: 760;
+      fill: #f8c14a;
+      paint-order: stroke;
+      stroke: #10131d;
+      stroke-width: 5px;
+      stroke-linejoin: round;
+      transition: opacity .15s ease;
+    }
+
+    .edge:hover path { stroke: rgba(248,193,74,.78); stroke-width: 2.8; }
+    .edge:hover .edge-label { opacity: 1; }
+
+    .node { cursor: pointer; filter: drop-shadow(0 14px 18px rgba(0,0,0,.24)); }
+    .node shape, .node rect, .node ellipse { transition: transform .2s ease, stroke .2s ease, filter .2s ease; }
+    .node:hover rect, .node:hover ellipse { stroke: rgba(255,255,255,.94); filter: brightness(1.1); }
+
+    .node text {
+      fill: white;
+      font-size: 12px;
+      font-weight: 760;
+      text-anchor: middle;
+      dominant-baseline: middle;
+      pointer-events: none;
+    }
+
+    .node .small-text { font-size: 10.5px; font-weight: 720; }
+    .node .badge-text { font-size: 9px; font-weight: 860; fill: #07111d; }
+
+    .control-dock {
+      position: absolute;
+      right: 18px;
+      bottom: 18px;
+      z-index: 6;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+      max-width: 360px;
+    }
+
+    .control-btn {
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 999px;
+      padding: 10px 13px;
+      color: var(--text);
+      background: rgba(26, 29, 39, .88);
+      box-shadow: 0 12px 28px rgba(0,0,0,.28);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 780;
+      cursor: pointer;
+      transition: transform .18s ease, border-color .18s ease, background .18s ease;
+    }
+
+    .control-btn:hover {
+      transform: translateY(-2px);
+      border-color: rgba(248,193,74,.6);
+      background: rgba(38, 43, 58, .96);
+    }
+
+    .legend {
+      position: absolute;
+      left: 18px;
+      bottom: 18px;
+      z-index: 5;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      max-width: min(660px, calc(100% - 400px));
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 9px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.055);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--c);
+    }
+
+    .detail-panel {
+      position: fixed;
+      top: 92px;
+      right: 18px;
+      z-index: 40;
+      width: min(380px, calc(100vw - 36px));
+      max-height: calc(100vh - 118px);
+      display: flex;
+      flex-direction: column;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 24px 70px rgba(0,0,0,.52);
+      transform: translateX(calc(100% + 30px));
+      opacity: 0;
+      transition: transform .32s ease, opacity .32s ease;
+      overflow: hidden;
+    }
+
+    .detail-panel.open {
+      transform: translateX(0);
+      opacity: 1;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 20px 20px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 23px;
+      line-height: 1.12;
+    }
+
+    .panel-category {
+      margin-bottom: 8px;
+      color: var(--amber);
+      font-size: 11px;
+      font-weight: 850;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .close-panel {
+      width: 36px;
+      height: 36px;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 50%;
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .panel-body {
+      padding: 18px 20px 22px;
+      overflow: auto;
+    }
+
+    .panel-body h3 {
+      margin: 18px 0 8px;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: #dce6ff;
+    }
+
+    .panel-body p {
+      margin: 0 0 12px;
+      color: #d8dfef;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .curious {
+      margin: 14px 0;
+      padding: 13px;
+      border-radius: 8px;
+      background: rgba(248, 193, 74, .13);
+      border: 1px solid rgba(248, 193, 74, .34);
+      color: #ffe7a3;
+      line-height: 1.45;
+      font-size: 14px;
+    }
+
+    .links-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .links-list a {
+      display: block;
+      color: #9fd3ff;
+      text-decoration: none;
+      font-size: 14px;
+      line-height: 1.3;
+      padding: 9px 10px;
+      border: 1px solid rgba(159, 211, 255, .14);
+      border-radius: 8px;
+      background: rgba(159, 211, 255, .06);
+    }
+
+    .links-list a:hover { color: white; border-color: rgba(159, 211, 255, .44); }
+
+    .video-frame {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border: 0;
+      border-radius: 8px;
+      margin: 8px 0 12px;
+      background: #090b10;
+    }
+
+    footer {
+      padding: 16px clamp(18px, 4vw, 48px) 28px;
+      color: var(--muted);
+      font-size: 13px;
+      border-top: 1px solid rgba(255,255,255,.08);
+    }
+
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 860px) {
+      header { grid-template-columns: 1fr; gap: 12px; }
+      .tabs { width: 100%; justify-content: space-between; }
+      .tab { flex: 1; padding: 10px 8px; }
+      main { padding: 10px; }
+      svg { height: calc(100vh - 230px); min-height: 560px; }
+      .legend { display: none; }
+      .control-dock { right: 12px; bottom: 12px; max-width: calc(100% - 24px); }
+      .control-btn { padding: 9px 11px; font-size: 12px; }
+      .detail-panel {
+        top: auto;
+        right: 0;
+        bottom: 0;
+        width: 100vw;
+        max-height: 78vh;
+        border-radius: 14px 14px 0 0;
+        transform: translateY(calc(100% + 20px));
+      }
+      .detail-panel.open { transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Conciencia Organizacional y Liderazgo 2 - Cartas de Navegacion</h1>
+      <div class="subtitle">Control IT S.A.S. · Equipo #8 · ESIC University</div>
+    </div>
+    <nav class="tabs" aria-label="Cartas de navegacion">
+      <button class="tab active" data-tab="carta1">Carta 1</button>
+      <button class="tab" data-tab="carta2">Carta 2</button>
+      <button class="tab" data-tab="carta3">Carta 3</button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="carta1" class="map-section active" data-map="carta1">
+      <div class="map-shell">
+        <div class="map-meta">
+          <div class="map-kicker">Carta 1 · Stakeholders y conflicto</div>
+          <div class="map-title">RSC, stakeholders y conflictos de interes</div>
+          <div class="map-note">Mapa conceptual de lectura lineal: de la responsabilidad social a la gestion de stakeholders, conflicto, negociacion y sostenibilidad.</div>
+        </div>
+        <svg id="svg-carta1" role="img" aria-label="Mapa conceptual Carta 1"></svg>
+        <div class="legend"></div>
+        <div class="control-dock"></div>
+      </div>
+    </section>
+
+    <section id="carta2" class="map-section" data-map="carta2">
+      <div class="map-shell">
+        <div class="map-meta">
+          <div class="map-kicker">Carta 2 · Vision radial ampliada</div>
+          <div class="map-title">Teoria de stakeholders y conflictos de interes</div>
+          <div class="map-note">El recorrido automatico prioriza nodos con mayor densidad de conexiones y muestra badges de prioridad estrategica.</div>
+        </div>
+        <svg id="svg-carta2" role="img" aria-label="Mapa conceptual Carta 2"></svg>
+        <div class="legend"></div>
+        <div class="control-dock"></div>
+      </div>
+    </section>
+
+    <section id="carta3" class="map-section" data-map="carta3">
+      <div class="map-shell">
+        <div class="map-meta">
+          <div class="map-kicker">Carta 3 · Accountability y sostenibilidad</div>
+          <div class="map-title">De la legitimidad estrategica a la transformacion civilizatoria</div>
+          <div class="map-note">Mapa circular con cuatro ejes: accountability, estandares, Economia del Bien Comun y Ecologia Politica.</div>
+        </div>
+        <svg id="svg-carta3" role="img" aria-label="Mapa conceptual Carta 3"></svg>
+        <div class="legend"></div>
+        <div class="control-dock"></div>
+      </div>
+    </section>
+  </main>
+
+  <aside class="detail-panel" id="detailPanel" aria-hidden="true">
+    <div class="panel-head">
+      <div>
+        <div class="panel-category" id="panelCategory">Concepto</div>
+        <h2 class="panel-title" id="panelTitle">Selecciona un nodo</h2>
+      </div>
+      <button class="close-panel" id="closePanel" aria-label="Cerrar panel">x</button>
+    </div>
+    <div class="panel-body" id="panelBody"></div>
+  </aside>
+
+  <footer>
+    Integrantes del equipo: Isa · Thomas · Mafe · Equipo #8. Proyecto academico para Control IT S.A.S. y ESIC University.
+  </footer>
+
+  <script>
+    const colors = {
+      central: "#f5f7fb",
+      rsc: "#2f80ed",
+      stakeholder: "#24b47e",
+      gestion: "#8b5cf6",
+      segmentacion: "#22d3ee",
+      etica: "#a855f7",
+      conflicto: "#f97316",
+      proceso: "#9a6a45",
+      negociacion: "#64748b",
+      maxneef: "#10b981",
+      sostenibilidad: "#14b8a6",
+      accountability: "#ef4444",
+      estandar: "#38bdf8",
+      ebc: "#eab308",
+      ecologia: "#22c55e",
+      hoja: "#475569"
+    };
+
+    const references = {
+      rsc: [
+        ["Responsabilidad social corporativa", "https://es.wikipedia.org/wiki/Responsabilidad_social_corporativa"],
+        ["ISO 26000: responsabilidad social", "https://www.iso.org/iso-26000-social-responsibility.html"],
+        ["RSC y Revolucion 4.0", "https://www.elfinanciero.com.mx/monterrey/la-cuarta-revolucion-industrial-y-su-dimension-social/"]
+      ],
+      stakeholder: [
+        ["Teoria de los stakeholders", "https://en.wikipedia.org/wiki/Stakeholder_theory"],
+        ["Freeman y stakeholder theory", "https://www.stakeholdermap.com/stakeholder-theory-freeman.html"],
+        ["La empresa vista desde los stakeholders", "https://diarioresponsable.com/opinion/22911-la-empresa-vista-desde-la-teoria-de-los-stakeholders-i"]
+      ],
+      gestion: [
+        ["Stakeholder analysis", "https://en.wikipedia.org/wiki/Stakeholder_analysis"],
+        ["CSR Europe", "https://www.csreurope.org/"],
+        ["Manual de stakeholders", "https://gestion-calidad.com/wp-content/uploads/2016/09/Manual-Stakeholders.pdf"]
+      ],
+      etica: [
+        ["Etica del discurso", "https://es.wikipedia.org/wiki/%C3%89tica_del_discurso"],
+        ["Jurgen Habermas", "https://es.wikipedia.org/wiki/J%C3%BCrgen_Habermas"],
+        ["Karl-Otto Apel", "https://es.wikipedia.org/wiki/Karl-Otto_Apel"]
+      ],
+      conflicto: [
+        ["Johan Galtung", "https://es.wikipedia.org/wiki/Johan_Galtung"],
+        ["Teoria de conflictos de Galtung", "https://icontent.ceipa.edu.co/nucleos/pregrado/conciencia_organizacional_2/nucleo/contenidos/OA2/arbol_conceptual/raiz_ppal/pdf/teoria_de_conflictos_de_johan_galtung.pdf"],
+        ["Conflict management", "https://en.wikipedia.org/wiki/Conflict_management"]
+      ],
+      negociacion: [
+        ["BATNA / MAPAN", "https://en.wikipedia.org/wiki/Best_alternative_to_a_negotiated_agreement"],
+        ["Negotiation", "https://en.wikipedia.org/wiki/Negotiation"],
+        ["Harvard Program on Negotiation", "https://www.pon.harvard.edu/daily/batna/"]
+      ],
+      maxneef: [
+        ["Necesidades humanas fundamentales", "https://es.wikipedia.org/wiki/Necesidades_humanas_fundamentales"],
+        ["Manfred Max-Neef", "https://es.wikipedia.org/wiki/Manfred_Max-Neef"],
+        ["Desarrollo a escala humana", "https://base.socioeco.org/docs/max_neef-desarrollo_a_escala_humana.pdf"]
+      ],
+      accountability: [
+        ["Accountability", "https://en.wikipedia.org/wiki/Accountability"],
+        ["GRI Standards", "https://www.globalreporting.org/standards/"],
+        ["UN Global Compact", "https://unglobalcompact.org/what-is-gc/mission/principles"]
+      ],
+      ebc: [
+        ["Economia del Bien Comun", "https://es.wikipedia.org/wiki/Econom%C3%ADa_del_bien_com%C3%BAn"],
+        ["International Federation for the Economy for the Common Good", "https://www.ecogood.org/"],
+        ["EBC en Espana", "https://spain.econgood.org/"]
+      ],
+      ecologia: [
+        ["Ecologia politica", "https://es.wikipedia.org/wiki/Ecolog%C3%ADa_pol%C3%ADtica"],
+        ["Revista Ecologia Politica", "https://www.ecologiapolitica.info/"],
+        ["Sostenibilidad fuerte", "https://en.wikipedia.org/wiki/Weak_and_strong_sustainability"]
+      ],
+      estandar: [
+        ["GRI Standards", "https://www.globalreporting.org/standards/"],
+        ["ISO 14001", "https://www.iso.org/iso-14001-environmental-management.html"],
+        ["AA1000", "https://www.accountability.org/standards/"]
+      ]
+    };
+
+    const videoByCategory = {
+      rsc: ["https://www.youtube.com/embed/6uPez79NH3M"],
+      stakeholder: ["https://www.youtube.com/embed/0TeJ9iE77uE"],
+      gestion: ["https://www.youtube.com/embed/0TeJ9iE77uE"],
+      etica: ["https://www.youtube.com/embed/6uPez79NH3M"],
+      conflicto: ["https://www.youtube.com/embed/XwMFxFtQguY"],
+      negociacion: ["https://www.youtube.com/embed/eXTn9F3eN2k"],
+      maxneef: ["https://www.youtube.com/embed/CT6pwusTXow"],
+      accountability: ["https://www.youtube.com/embed/AumH_-VWDzI"],
+      ebc: ["https://www.youtube.com/embed/Wz2OUD3ILzk", "https://www.youtube.com/embed/U4tL4eS--XM"],
+      ecologia: ["https://www.youtube.com/embed/GfW7ysYIB4Y", "https://www.youtube.com/embed/-O1CuQsPHv4"],
+      estandar: ["https://www.youtube.com/embed/bg_svCVSnuw"]
+    };
+
+    const detailTemplates = {
+      central1: {
+        title: "RSC, Stakeholders y Conflictos de Interes",
+        category: "Nodo central",
+        explanation: "Este concepto integra tres discusiones centrales de la carta: la responsabilidad de la empresa por sus impactos, la identificacion de los grupos afectados y la gestion de tensiones que aparecen cuando los intereses no coinciden. La lectura muestra que la sostenibilidad organizacional no se logra solo con resultados financieros, sino con relaciones transparentes, dialogicas y responsables.",
+        curious: "La teoria de stakeholders cambio la pregunta clasica de la empresa: no solo importa cuanto gana, sino quien queda afectado por la forma en que gana.",
+        app: "En Control IT S.A.S. este nodo sirve como marco para revisar decisiones de servicio, datos, tecnologia y relacionamiento con clientes. La empresa debe mapear impactos sobre empleados, clientes, proveedores, comunidad y Estado antes de definir prioridades.",
+        links: references.rsc,
+        videos: []
+      },
+      central2: {
+        title: "Teoria de Stakeholders y Conflictos de Interes",
+        category: "Nodo central",
+        explanation: "La carta dos presenta una mirada ampliada: los stakeholders se analizan por influencia, legitimidad, urgencia, poder, interes, cooperacion y amenaza. El conflicto aparece como una consecuencia posible de necesidades no satisfechas, contradicciones y fallas de comunicacion.",
+        curious: "Un stakeholder con poco poder formal puede volverse prioritario si su urgencia es alta y su reclamo tiene legitimidad social.",
+        app: "Para Control IT S.A.S., la lectura permite crear una matriz de prioridad estrategica y anticipar tensiones antes de que afecten proyectos, reputacion o continuidad operativa.",
+        links: references.stakeholder,
+        videos: videoByCategory.stakeholder
+      },
+      central3: {
+        title: "Accountability - Rendicion de Cuentas",
+        category: "Nodo central",
+        explanation: "La accountability es una obligacion etica de transparencia que reduce asimetrias de informacion entre la organizacion y sus stakeholders. La carta enfatiza que los reportes de sostenibilidad deben corresponder con el desempeno real, no solo con la imagen que la empresa desea proyectar.",
+        curious: "La rendicion de cuentas puede legitimar a una organizacion, pero tambien puede invalidarla cuando la evidencia revela distancia entre discurso y practica.",
+        app: "Control IT S.A.S. puede aplicar accountability mediante indicadores claros de calidad, privacidad, servicio, impacto ambiental y bienestar laboral, comunicados de forma verificable.",
+        links: references.accountability,
+        videos: videoByCategory.accountability
+      }
+    };
+
+    function makeDetail(label, category, note, app, extra = {}) {
+      const referenceKey = extra.ref || category;
+      return {
+        title: label,
+        category: extra.categoryLabel || categoryLabel(category),
+        explanation: note,
+        curious: extra.curious || curiousByCategory(category, label),
+        app: app || appByCategory(category, label),
+        links: extra.links || references[referenceKey] || references.rsc,
+        videos: extra.videos || videoByCategory[category] || []
+      };
+    }
+
+    function categoryLabel(category) {
+      return ({
+        rsc: "Responsabilidad social",
+        stakeholder: "Stakeholders",
+        gestion: "Gestion",
+        segmentacion: "Priorizacion",
+        etica: "Marco etico",
+        conflicto: "Conflicto",
+        proceso: "Proceso del conflicto",
+        negociacion: "Negociacion",
+        maxneef: "Necesidades humanas",
+        sostenibilidad: "Sostenibilidad",
+        accountability: "Accountability",
+        estandar: "Estandares",
+        ebc: "Economia del Bien Comun",
+        ecologia: "Ecologia politica",
+        hoja: "Concepto aplicado"
+      })[category] || "Concepto";
+    }
+
+    function curiousByCategory(category, label) {
+      const map = {
+        rsc: "La RSC contemporanea se distancia de la filantropia: no se mide por donar mas, sino por responder mejor por los impactos cotidianos de la empresa.",
+        stakeholder: "Freeman introdujo el concepto en estrategia para mostrar que la empresa existe dentro de una red de relaciones, no aislada de su entorno.",
+        gestion: "Los modelos de gestion no eliminan el juicio directivo; lo ordenan para que la prioridad no dependa solo de intuiciones.",
+        segmentacion: "Dos stakeholders con igual interes pueden requerir estrategias distintas si uno tiene alto poder y el otro alto potencial de amenaza.",
+        etica: "La etica discursiva plantea que una decision gana legitimidad cuando los afectados pueden participar en el dialogo que la justifica.",
+        conflicto: "Para Galtung, el conflicto no se elimina como si fuera un error: se transforma atendiendo actitudes, comportamientos y contradicciones.",
+        proceso: "Robbins y Judge muestran que el conflicto ya existe antes del comportamiento visible: empieza con condiciones de incompatibilidad o percepciones.",
+        negociacion: "El MAPAN no es la meta de la negociacion; es el punto que permite saber cuando un acuerdo deja de ser conveniente.",
+        maxneef: "Max-Neef distingue necesidades de satisfactores: las necesidades son finitas, pero las formas de satisfacerlas cambian historica y culturalmente.",
+        sostenibilidad: "La sostenibilidad integra viabilidad economica, responsabilidad social y cuidado ambiental; si una dimension se ignora, el equilibrio se vuelve fragil.",
+        accountability: "Un reporte puede aumentar confianza solo si tambien visibiliza impactos negativos y no se limita a mostrar logros favorables.",
+        estandar: "Los estandares ayudan a ordenar la informacion, pero no sustituyen la transformacion real de las practicas empresariales.",
+        ebc: "La Economia del Bien Comun invierte el criterio clasico: el capital es medio, el bienestar comun es fin.",
+        ecologia: "La ecologia politica conecta ambiente y poder: pregunta quien se beneficia, quien asume los costos y que naturaleza queda reducida a recurso."
+      };
+      return map[category] || `El concepto "${label}" funciona como puente entre teoria y decision organizacional.`;
+    }
+
+    function appByCategory(category, label) {
+      const map = {
+        rsc: "En Control IT S.A.S. este concepto exige revisar si los servicios tecnologicos generan valor para clientes y empleados sin trasladar costos sociales o ambientales invisibles.",
+        stakeholder: "La empresa puede usarlo para identificar usuarios, clientes, talento tecnico, proveedores, aliados, entidades publicas y comunidad como actores con expectativas legitimas.",
+        gestion: "En Control IT S.A.S. ayuda a convertir expectativas dispersas en planes de comunicacion, seguimiento, mitigacion de riesgos y mejora de servicio.",
+        segmentacion: "La aplicacion practica es priorizar a quien informar, satisfacer, involucrar o defender segun su poder, interes, amenaza y cooperacion.",
+        etica: "Control IT S.A.S. puede fortalecer su liderazgo si documenta criterios eticos, consulta a afectados y explica las razones de sus decisiones.",
+        conflicto: "La empresa debe leer quejas, retrasos, rotacion o fricciones con clientes como senales de necesidades y contradicciones que deben transformarse.",
+        proceso: "Sirve para diagnosticar si una tension esta en fase temprana, emocional, conductual o de resultado, y asi intervenir con la herramienta adecuada.",
+        negociacion: "En proyectos de tecnologia, el MAPAN ayuda a negociar alcance, tiempos, costos y calidad sin sacrificar la relacion con el cliente.",
+        maxneef: "La matriz de necesidades ayuda a evaluar si el trabajo tecnologico protege identidad, participacion, entendimiento y libertad de empleados y usuarios.",
+        sostenibilidad: "Control IT S.A.S. puede traducirlo en indicadores de continuidad financiera, bienestar laboral, seguridad digital y uso responsable de recursos.",
+        accountability: "La empresa puede reportar resultados de forma verificable: niveles de servicio, seguridad de datos, emisiones indirectas, formacion y satisfaccion de stakeholders.",
+        estandar: "Los estandares orientan reportes y sistemas de gestion que vuelven comparable y auditable el desempeno de Control IT S.A.S.",
+        ebc: "La EBC invita a Control IT S.A.S. a medir su exito no solo por rentabilidad, sino por dignidad, solidaridad, justicia, sostenibilidad y democracia.",
+        ecologia: "En Control IT S.A.S. la ecologia politica abre preguntas sobre consumo energetico, hardware, datos, brecha digital y comunidades afectadas por la tecnologia."
+      };
+      return map[category] || `En Control IT S.A.S., "${label}" se puede convertir en criterio de diagnostico y mejora para decisiones internas y externas.`;
+    }
+
+    function node(id, label, x, y, category, level, note, app, extra = {}) {
+      return {
+        id, label, x, y, category, level,
+        color: colors[category] || colors.hoja,
+        w: extra.w || (level === "central" ? 250 : level === "main" ? 190 : 150),
+        h: extra.h || (level === "central" ? 82 : level === "main" ? 58 : 42),
+        priority: extra.priority || null,
+        detail: extra.detail || makeDetail(label, category, note, app, extra)
+      };
+    }
+
+    function link(source, target, label, extra = {}) {
+      return { source, target, label, dashed: extra.dashed || false };
+    }
+
+    const baseNotes = {
+      rsc: "La Responsabilidad Social Corporativa es el compromiso que asume una organizacion frente a sus stakeholders en dimensiones economicas, sociales y ambientales. No se reduce a donaciones o marketing con causa: implica responder por impactos, generar valor compartido y sostener un dialogo permanente con los grupos de interes.",
+      freeman: "La teoria de Freeman define stakeholder como cualquier individuo o grupo que puede afectar o ser afectado por el logro de los objetivos organizacionales. Su aporte es ampliar la mirada de la empresa mas alla del accionista, integrando actores internos y externos en la estrategia.",
+      gestion: "La gestion de stakeholders identifica expectativas, necesidades, demandas y niveles de influencia para integrarlos a la estrategia. Permite priorizar relaciones, reducir riesgos y convertir el dialogo en una practica organizada.",
+      segmentacion: "Los modelos de segmentacion ordenan a los grupos de interes segun variables como poder, interes, cooperacion y amenaza. Su valor consiste en definir estrategias diferenciadas: informar, satisfacer, implicar, colaborar, controlar o defender.",
+      etica: "El marco etico de la RSC, inspirado en Habermas y Apel, entiende la empresa como agente moral. Las decisiones deben dialogarse con los afectados porque la actividad empresarial no ocurre en un vacio social.",
+      conflicto: "El conflicto organizacional, desde Galtung, es natural porque surge de necesidades, intereses y percepciones diversas. No es bueno ni malo por si mismo; puede generar aprendizaje si se transforma atendiendo su origen.",
+      proceso: "Robbins y Judge describen el conflicto como un proceso de cinco etapas: oposicion, cognicion, intenciones, comportamiento y resultados. Esta lectura permite intervenir antes de que el conflicto se vuelva disfuncional.",
+      negociacion: "La negociacion es el proceso mediante el cual dos o mas partes buscan acuerdos sobre recursos escasos. Requiere preparacion, reglas, justificacion, busqueda de acuerdos, solucion de problemas, cierre e implementacion.",
+      maxneef: "Max-Neef plantea que las necesidades humanas son finitas y se organizan en dimensiones existenciales y axiologicas. Cuando no se satisfacen, aparecen tensiones que pueden convertirse en conflicto organizacional o social.",
+      sostenibilidad: "La sostenibilidad organizacional es el resultado de integrar valor economico, responsabilidad social y cuidado ambiental. En la carta aparece como horizonte de la RSC, la gestion de stakeholders y la negociacion etica."
+    };
+
+    const carta1Nodes = [
+      { ...node("c1", "RSC, Stakeholders y Conflictos de Interes", 0, 0, "central", "central", "", "", { detail: detailTemplates.central1, w: 300, h: 92 }) },
+      node("rsc", "Responsabilidad Social Corporativa (RSC)", -520, -310, "rsc", "main", baseNotes.rsc),
+      node("freeman", "Teoria de los Stakeholders (Freeman, 1984)", 0, -360, "stakeholder", "main", baseNotes.freeman, null, { w: 215 }),
+      node("gestion", "Gestion de Stakeholders", 520, -310, "gestion", "main", baseNotes.gestion),
+      node("segmentacion", "Modelos de Segmentacion y Priorizacion", 690, 40, "segmentacion", "main", baseNotes.segmentacion, null, { w: 215 }),
+      node("etica", "Marco Etico de la RSC", 420, 330, "etica", "main", baseNotes.etica),
+      node("conflicto", "Conflicto Organizacional (Galtung)", 0, 390, "conflicto", "main", baseNotes.conflicto),
+      node("proceso", "Proceso del Conflicto (Robbins & Judge)", -430, 330, "proceso", "main", baseNotes.proceso, null, { w: 215 }),
+      node("negociacion", "Negociacion y MAPAN", -690, 40, "negociacion", "main", baseNotes.negociacion),
+      node("maxneef", "Necesidades Humanas (Max-Neef)", -520, -40, "maxneef", "main", baseNotes.maxneef),
+      node("sostenibilidad", "Sostenibilidad Organizacional", 0, 720, "sostenibilidad", "main", baseNotes.sostenibilidad),
+
+      node("valor", "Valor compartido", -760, -470, "rsc", "leaf", "El valor compartido integra la competitividad empresarial con beneficios reales para los grupos de interes. La empresa crea valor cuando sus decisiones mejoran simultaneamente resultados economicos y condiciones sociales.", null, { ref: "rsc" }),
+      node("triple", "Sostenibilidad economica, social y ambiental", -520, -560, "rsc", "leaf", "La RSC exige balancear rentabilidad, bienestar social y cuidado ambiental. Esta triple mirada evita que una organizacion resuelva un problema financiero creando un costo humano o ecologico.", null, { ref: "rsc", w: 180 }),
+      node("industria4", "Revolucion 4.0", -300, -470, "rsc", "leaf", "La Revolucion 4.0 intensifica los impactos de la empresa mediante automatizacion, datos y nuevas formas de trabajo. Por eso la RSC debe incluir efectos tecnologicos sobre empleo, privacidad y inclusion.", null, { ref: "rsc" }),
+      node("stake_rsc", "Stakeholders de la RSC", -780, -260, "rsc", "leaf", "Consumidores, proveedores, empleados, administracion publica, comunidad, sociedad y medios participan en la legitimidad de la empresa. Cada grupo puede evaluar de manera distinta el desempeno responsable.", null, { ref: "stakeholder" }),
+
+      node("internos", "Stakeholders internos", -160, -570, "stakeholder", "leaf", "Empleados, accionistas y directivos son actores internos porque participan de la operacion y del gobierno de la empresa. Sus expectativas inciden en clima laboral, inversion y direccion estrategica.", null, { ref: "stakeholder" }),
+      node("externos", "Stakeholders externos", 150, -570, "stakeholder", "leaf", "Clientes, proveedores, Estado, comunidad, competencia y medios de comunicacion son actores externos que afectan o son afectados por la empresa. Su lectura del impacto define parte de la reputacion organizacional.", null, { ref: "stakeholder" }),
+      node("engagement", "Engagement", 0, -660, "stakeholder", "leaf", "El engagement es el compromiso activo con los grupos de interes. Implica escuchar, responder, informar y construir acuerdos, no solo comunicar decisiones ya tomadas.", null, { ref: "stakeholder" }),
+
+      node("mitchell", "Mitchell-Agle-Wood", 720, -505, "gestion", "leaf", "Este modelo clasifica stakeholders mediante poder, legitimidad y urgencia. Entre mas atributos acumula un actor, mayor prioridad requiere en la estrategia.", null, { ref: "gestion" }),
+      node("tipos", "Latentes, discrecionales, definitivos...", 470, -560, "gestion", "leaf", "La combinacion de atributos produce tipos como latentes, discrecionales, reclamantes, dominantes, dependientes, peligrosos y definitivos. Cada tipo demanda una forma distinta de atencion.", null, { ref: "gestion", w: 185 }),
+      node("csr", "CSR Europe y ORSE", 810, -260, "gestion", "leaf", "CSR Europe y ORSE proponen preguntas practicas: por que relacionarse, quienes son los stakeholders y como sostener el dialogo. El modelo destaca participacion y paneles de interesados.", null, { ref: "gestion" }),
+      node("ethical", "Ethical Accountability", 570, -160, "gestion", "leaf", "Ethical Accountability busca integrar stakeholders en la planeacion estrategica, gestionar riesgos y fortalecer relaciones sostenibles. Su valor es pasar de reaccionar a planificar el vinculo.", null, { ref: "gestion" }),
+
+      node("gardner", "Modelo Gardner (Poder-Interes)", 940, -50, "segmentacion", "leaf", "Gardner clasifica actores por poder e interes: actores clave, mantener satisfecho, mantener informado y minimo esfuerzo. La matriz permite ajustar la intensidad de comunicacion.", null, { ref: "gestion" }),
+      node("savage", "Modelo Savage (Cooperacion-Amenaza)", 930, 150, "segmentacion", "leaf", "Savage observa potencial de cooperacion y amenaza para definir estrategias como implicar, colaborar, controlar o defender. Es util cuando un stakeholder puede apoyar y presionar al mismo tiempo.", null, { ref: "gestion", w: 185 }),
+
+      node("habermas", "Habermas", 660, 500, "etica", "leaf", "Habermas aporta la idea de racionalidad comunicativa: las normas ganan legitimidad cuando pueden justificarse ante los afectados. En la RSC esto se traduce en dialogo y transparencia.", null, { ref: "etica" }),
+      node("apel", "Apel", 420, 580, "etica", "leaf", "Apel fortalece una etica del discurso orientada a la corresponsabilidad. La empresa debe reconocer que sus decisiones tienen consecuencias morales sobre otros.", null, { ref: "etica" }),
+      node("agente", "Empresa como agente moral", 790, 310, "etica", "leaf", "La empresa es agente moral porque decide, actua y afecta a la sociedad. No puede excusarse solo en la busqueda de eficiencia cuando sus impactos comprometen derechos o bienestar.", null, { ref: "etica" }),
+      node("dialogo", "Dialogo etico", 540, 180, "etica", "leaf", "El dialogo etico convierte la teoria de stakeholders en accion: identificar afectados, escuchar argumentos, ajustar decisiones y rendir cuentas.", null, { ref: "etica" }),
+
+      node("dilema", "Dilema", 190, 570, "conflicto", "leaf", "Un dilema aparece cuando una persona enfrenta dos fines incompatibles. En la organizacion puede surgir entre velocidad y calidad, rentabilidad y bienestar, o confidencialidad y transparencia.", null, { ref: "conflicto" }),
+      node("disputa", "Disputa", 0, 620, "conflicto", "leaf", "La disputa ocurre cuando varias personas o grupos persiguen un mismo recurso escaso. En empresas se refleja en presupuestos, tiempos de entrega, reconocimiento o acceso a informacion.", null, { ref: "conflicto" }),
+      node("origen", "Origen: creencias, actitudes y contradicciones", -190, 570, "conflicto", "leaf", "El origen del conflicto no esta solo en el comportamiento visible. Creencias, actitudes, paradigmas, contradicciones y necesidades insatisfechas explican su profundidad.", null, { ref: "conflicto", w: 185 }),
+      node("transformacion", "Transformacion, no eliminacion", 0, 520, "conflicto", "leaf", "Galtung propone transformar el conflicto en lugar de eliminarlo. La intervencion debe atender causas, relaciones y comportamientos para producir aprendizaje.", null, { ref: "conflicto", w: 175 }),
+
+      node("oposicion", "1. Oposicion", -700, 500, "proceso", "leaf", "Aparecen condiciones previas de incompatibilidad por comunicacion, estructura o variables personales. Es el momento mas temprano para prevenir escalamiento.", null, { ref: "conflicto" }),
+      node("cognicion", "2. Cognicion", -510, 585, "proceso", "leaf", "Las partes perciben el conflicto y lo personalizan emocionalmente. La gestion debe distinguir hechos, interpretaciones y emociones.", null, { ref: "conflicto" }),
+      node("intenciones", "3. Intenciones", -330, 560, "proceso", "leaf", "Las partes eligen competir, colaborar, evitar, ceder o transigir. La intencion define la estrategia relacional antes del comportamiento visible.", null, { ref: "conflicto" }),
+      node("comportamiento", "4. Comportamiento", -620, 230, "proceso", "leaf", "El conflicto se hace explicito mediante acciones, mensajes, resistencia, hostilidad o busqueda de dialogo. Aqui la cultura organizacional se vuelve visible.", null, { ref: "conflicto" }),
+      node("resultados", "5. Resultados", -810, 310, "proceso", "leaf", "Los resultados pueden ser funcionales si mejoran desempeno y aprendizaje, o disfuncionales si deterioran confianza, motivacion y productividad.", null, { ref: "conflicto" }),
+
+      node("etapasneg", "7 etapas de negociacion", -960, 30, "negociacion", "leaf", "La negociacion se sistematiza en planeacion, reglas basicas, justificacion, busqueda de acuerdos, solucion de problemas, cierre e implementacion. Este orden reduce improvisacion.", null, { ref: "negociacion" }),
+      node("mapan", "MAPAN", -900, -150, "negociacion", "leaf", "El MAPAN, Mejor Alternativa Para un Acuerdo Negociado, define el valor minimo aceptable y las alternativas posibles. Es una herramienta para negociar con limites claros.", null, { ref: "negociacion" }),
+      node("eticneg", "Etica en la negociacion", -690, -210, "negociacion", "leaf", "La negociacion requiere comunicacion, intereses, aspiraciones y acuerdos sostenibles. La etica evita que un acuerdo formalmente exitoso destruya confianza futura.", null, { ref: "negociacion" }),
+
+      node("existenciales", "Necesidades existenciales", -770, -30, "maxneef", "leaf", "Ser, tener, hacer y estar describen modos existenciales de la necesidad humana. Ayudan a entender que una tension laboral no siempre es solo material.", null, { ref: "maxneef" }),
+      node("axiologicas", "Necesidades axiologicas", -690, -390, "maxneef", "leaf", "Subsistencia, proteccion, afecto, participacion, identidad, libertad, ocio, creacion y entendimiento estructuran la propuesta de Max-Neef.", null, { ref: "maxneef" }),
+      node("insatisfechas", "Necesidades no satisfechas -> conflicto", -410, -190, "maxneef", "leaf", "Cuando las necesidades no encuentran satisfactores adecuados, aparecen frustracion, tension y disputa. El conflicto revela una falla de satisfaccion individual o colectiva.", null, { ref: "maxneef", w: 185 })
+    ];
+
+    const carta1Links = [
+      link("c1", "rsc", "integra"), link("c1", "freeman", "incluye"), link("c1", "gestion", "requiere"),
+      link("c1", "segmentacion", "ordena"), link("c1", "etica", "se fundamenta en"), link("c1", "conflicto", "reconoce"),
+      link("c1", "proceso", "analiza"), link("c1", "negociacion", "resuelve mediante"), link("c1", "maxneef", "explica desde"),
+      link("rsc", "gestion", "requiere"), link("gestion", "conflicto", "para prevenir"), link("conflicto", "negociacion", "se transforma mediante"), link("negociacion", "sostenibilidad", "alcanza"),
+      link("rsc", "valor", "genera"), link("rsc", "triple", "integra"), link("rsc", "industria4", "responde a"), link("rsc", "stake_rsc", "considera"),
+      link("freeman", "internos", "clasifica"), link("freeman", "externos", "clasifica"), link("freeman", "engagement", "exige"),
+      link("gestion", "mitchell", "usa"), link("gestion", "tipos", "clasifica"), link("gestion", "csr", "dialoga con"), link("gestion", "ethical", "planea con"),
+      link("segmentacion", "gardner", "incluye"), link("segmentacion", "savage", "incluye"),
+      link("etica", "habermas", "se inspira en"), link("etica", "apel", "se inspira en"), link("etica", "agente", "reconoce"), link("etica", "dialogo", "operacionaliza"),
+      link("conflicto", "dilema", "puede ser"), link("conflicto", "disputa", "puede ser"), link("conflicto", "origen", "nace de"), link("conflicto", "transformacion", "busca"),
+      link("proceso", "oposicion", "etapa"), link("proceso", "cognicion", "etapa"), link("proceso", "intenciones", "etapa"), link("proceso", "comportamiento", "etapa"), link("proceso", "resultados", "etapa"),
+      link("negociacion", "etapasneg", "se estructura en"), link("negociacion", "mapan", "define"), link("negociacion", "eticneg", "requiere"),
+      link("maxneef", "existenciales", "clasifica"), link("maxneef", "axiologicas", "clasifica"), link("maxneef", "insatisfechas", "cuando faltan")
+    ];
+
+    function radialPoint(angleDeg, radiusX, radiusY) {
+      const a = (angleDeg - 90) * Math.PI / 180;
+      return [Math.cos(a) * radiusX, Math.sin(a) * radiusY];
+    }
+
+    const branchData = [
+      ["rsc2", "Responsabilidad Social Corporativa (RSC)", "rsc", baseNotes.rsc, "alta"],
+      ["freeman2", "Teoria de los Stakeholders (Freeman, 1984)", "stakeholder", baseNotes.freeman, "alta"],
+      ["gestion2", "Gestion de Stakeholders", "gestion", baseNotes.gestion, "alta"],
+      ["segmentacion2", "Segmentacion y Priorizacion", "segmentacion", baseNotes.segmentacion, "media"],
+      ["etica2", "Marco Etico de la RSC", "etica", baseNotes.etica, "alta"],
+      ["conflicto2", "Conflicto Organizacional (Galtung)", "conflicto", baseNotes.conflicto, "alta"],
+      ["proceso2", "Proceso del Conflicto", "proceso", baseNotes.proceso, "media"],
+      ["negociacion2", "Negociacion y MAPAN", "negociacion", baseNotes.negociacion, "media"],
+      ["maxneef2", "Necesidades Humanas (Max-Neef)", "maxneef", baseNotes.maxneef, "alta"]
+    ];
+
+    const carta2Nodes = [
+      { ...node("c2", "Teoria de Stakeholders y Conflictos de Interes", 0, 0, "central", "central", "", "", { detail: detailTemplates.central2, w: 310, h: 92 }) }
+    ];
+
+    branchData.forEach((b, i) => {
+      const [x, y] = radialPoint(i * 40, 560, 360);
+      carta2Nodes.push(node(b[0], b[1], x, y, b[2], "main", b[3], null, { priority: b[4], w: b[1].length > 32 ? 220 : 190 }));
+    });
+
+    [
+      ["mitchell2", "Mitchell-Agle-Wood", "gestion", 760, -105, "Poder, legitimidad y urgencia permiten definir prioridad estrategica segun la acumulacion de atributos."],
+      ["gardner2", "Gardner: Poder-Interes", "segmentacion", 690, 230, "La matriz poder-interes traduce la lectura de stakeholders en acciones de comunicacion y relacionamiento."],
+      ["savage2", "Savage: Cooperacion-Amenaza", "segmentacion", 470, 480, "El modelo Savage muestra que un actor puede ser aliado, riesgo o ambos, segun su capacidad de cooperar y amenazar."],
+      ["maxconf2", "Necesidades no satisfechas", "maxneef", -465, 470, "Las necesidades no satisfechas generan tensiones que pueden expresarse como dilemas, disputas o resistencia organizacional."],
+      ["galtung2", "Transformacion del conflicto", "conflicto", -750, 115, "La transformacion del conflicto atiende causas profundas y no solo manifestaciones visibles como hostilidad o quejas."],
+      ["dialogo2", "Dialogo etico", "etica", -360, -520, "El dialogo etico convierte la responsabilidad social en una practica deliberativa con los afectados."],
+      ["stakeholders2", "Internos y externos", "stakeholder", 355, -515, "Internos y externos permiten reconocer que el exito empresarial depende de relaciones dentro y fuera de la organizacion."],
+      ["mapan2", "MAPAN", "negociacion", -705, -250, "El MAPAN define alternativas y limites antes de negociar, lo que protege acuerdos sostenibles."],
+      ["sost2", "Sostenibilidad", "sostenibilidad", 0, 610, "La sostenibilidad es el horizonte que integra RSC, stakeholders, manejo de conflictos y negociacion responsable."]
+    ].forEach(d => carta2Nodes.push(node(d[0], d[1], d[3], d[4], d[2], "leaf", d[5], null, { ref: d[2] })));
+
+    const carta2Links = [
+      ...branchData.map(b => link("c2", b[0], "rama principal")),
+      link("gestion2", "mitchell2", "clasifica por"),
+      link("segmentacion2", "gardner2", "ordena con"),
+      link("segmentacion2", "savage2", "complementa con"),
+      link("maxneef2", "maxconf2", "explica"),
+      link("conflicto2", "galtung2", "se transforma"),
+      link("etica2", "dialogo2", "requiere"),
+      link("freeman2", "stakeholders2", "distingue"),
+      link("negociacion2", "mapan2", "define"),
+      link("rsc2", "sost2", "busca"),
+      link("maxneef2", "conflicto2", "genera tensiones con", { dashed: true }),
+      link("mitchell2", "gardner2", "compara prioridad con", { dashed: true }),
+      link("etica2", "rsc2", "fundamenta", { dashed: true }),
+      link("gestion2", "conflicto2", "previene", { dashed: true }),
+      link("negociacion2", "sost2", "orienta hacia", { dashed: true })
+    ];
+
+    const carta3Nodes = [
+      { ...node("c3", "Accountability - Rendicion de Cuentas", 0, 0, "accountability", "central", "", "", { detail: detailTemplates.central3, w: 300, h: 92 }) },
+      node("nucleo", "Eje I - Nucleo de la Accountability", 0, -360, "accountability", "main", "El nucleo explica la rendicion de cuentas como transparencia etica para disminuir asimetrias de informacion. Tambien introduce la tension entre legitimidad estrategica e interes comun.", null, { ref: "accountability", w: 230 }),
+      node("trad", "Eje II - Estandares Tradicionales", 520, 0, "estandar", "main", "Los estandares tradicionales convierten la sostenibilidad en reportes, sistemas de gestion y validacion externa. Permiten comunicar desempeno economico, social y ambiental con lenguaje comparable.", null, { ref: "estandar", w: 230 }),
+      node("ebc", "Eje III - Economia del Bien Comun", 0, 360, "ebc", "main", "La Economia del Bien Comun propone un cambio de paradigma: el capital financiero es medio y el bien comun es fin. Su Balance del Bien Comun mide impactos desde valores constitucionales y grupos de interes.", null, { ref: "ebc", videos: videoByCategory.ebc, w: 230 }),
+      node("ecopol", "Eje IV - Ecologia Politica", -520, 0, "ecologia", "main", "La ecologia politica critica la reduccion de naturaleza y personas a recursos de mercado. Conecta sostenibilidad, poder, justicia social, limites naturales y etica de la otredad.", null, { ref: "ecologia", videos: videoByCategory.ecologia, w: 210 }),
+      node("defacc", "Definicion: transparencia etica", -160, -570, "accountability", "leaf", "La accountability obliga a explicar decisiones e impactos de manera comprensible para quienes no gestionan la organizacion. Su funcion es reducir asimetria de informacion.", null, { ref: "accountability" }),
+      node("instrumental", "Enfoque Instrumental", 165, -570, "accountability", "leaf", "El enfoque instrumental usa la rendicion de cuentas para legitimidad de imagen, atraccion de capital y maximizacion del valor de mercado. Su riesgo es ocultar impactos negativos.", null, { ref: "accountability" }),
+      node("greenwashing", "Greenwashing", 350, -440, "accountability", "leaf", "El greenwashing aparece cuando la comunicacion sostenible no corresponde con las practicas reales. La carta lo asocia con reportes voluntarios ambiguos o selectivos.", null, { ref: "accountability" }),
+      node("eticoacc", "Enfoque Etico", -350, -440, "accountability", "leaf", "El enfoque etico entiende la accountability como liderazgo consciente, bienestar comun y participacion democratica de stakeholders. Busca trascendencia social, no solo reputacion.", null, { ref: "accountability" }),
+      node("gri", "GRI", 800, -190, "estandar", "leaf", "GRI es un referente global para reportar desempeno economico, social y ambiental. Ayuda a estructurar memorias de sostenibilidad con indicadores comparables.", null, { ref: "estandar" }),
+      node("pacto", "Pacto Global - 10 principios ONU", 815, 0, "estandar", "leaf", "El Pacto Global promueve diez principios en derechos humanos, trabajo, medio ambiente y anticorrupcion. Conecta la gestion empresarial con metas globales de sostenibilidad.", null, { ref: "accountability" }),
+      node("iso", "ISO 14001 / ISO 26000", 800, 190, "estandar", "leaf", "ISO 14001 orienta sistemas de gestion ambiental e ISO 26000 funciona como guia de responsabilidad social. Ambas ayudan a convertir compromisos en procesos.", null, { ref: "estandar" }),
+      node("sa8000", "SA 8000", 560, 295, "estandar", "leaf", "SA 8000 es una certificacion voluntaria enfocada en buenas practicas laborales. Fortalece la dimension social de la sostenibilidad empresarial.", null, { ref: "estandar" }),
+      node("aa1000", "AA1000", 560, -295, "estandar", "leaf", "AA1000 aporta aseguramiento y validacion externa para evaluar calidad de la informacion de sostenibilidad. Su objetivo es evitar que el reporte sea solo publicidad.", null, { ref: "estandar" }),
+      node("filosofia", "Capital como medio, bien comun como fin", -260, 575, "ebc", "leaf", "La EBC cuestiona la acumulacion de riqueza como finalidad de la economia. Propone que el capital sirva a necesidades humanas y bienestar comun.", null, { ref: "ebc", videos: videoByCategory.ebc, w: 190 }),
+      node("balance", "Balance del Bien Comun", 0, 635, "ebc", "leaf", "El Balance del Bien Comun es un instrumento de accountability que mide contribuciones a dignidad, solidaridad, justicia, sostenibilidad y democracia.", null, { ref: "ebc", videos: videoByCategory.ebc }),
+      node("matriz", "Matriz Triple Entrada", 265, 575, "ebc", "leaf", "La matriz cruza valores constitucionales con grupos de interes como proveedores, financiadores, empleados, clientes y entorno social.", null, { ref: "ebc", videos: videoByCategory.ebc }),
+      node("valores", "Dignidad · Solidaridad · Justicia · Sostenibilidad · Democracia", 0, 500, "ebc", "leaf", "Estos valores funcionan como criterios para evaluar si la actividad economica humaniza decisiones o reproduce relaciones puramente instrumentales.", null, { ref: "ebc", videos: videoByCategory.ebc, w: 240 }),
+      node("cosificacion", "Critica a la cosificacion", -805, -210, "ecologia", "leaf", "La cosificacion reduce naturaleza y personas a objetos o recursos de mercado. La ecologia politica denuncia esa reduccion porque oculta relaciones de poder y explotacion.", null, { ref: "ecologia", videos: videoByCategory.ecologia }),
+      node("fuerte", "Sustentabilidad fuerte vs. debil", -830, 0, "ecologia", "leaf", "La sustentabilidad fuerte reconoce limites naturales y no asume que el capital natural pueda sustituirse siempre por capital economico o tecnologico.", null, { ref: "ecologia", videos: videoByCategory.ecologia }),
+      node("limites", "Limites naturales · Antiproductivismo · Muerte entropica", -790, 210, "ecologia", "leaf", "Estos conceptos advierten que el crecimiento infinito es imposible en un sistema finito y que la hiperproduccion degrada energia y ecosistemas.", null, { ref: "ecologia", videos: videoByCategory.ecologia, w: 235 }),
+      node("otredad", "Etica de la Otredad", -555, 310, "ecologia", "leaf", "La etica de la otredad reconoce a comunidades y naturaleza como sujetos con valor propio. Exige decisiones democraticas e igualitarias.", null, { ref: "ecologia", videos: videoByCategory.ecologia }),
+      node("praxis", "Praxis: decrecimiento y dialogo de saberes", -555, -310, "ecologia", "leaf", "La praxis de la ecologia politica incluye decrecimiento, democracia radical y dialogo de saberes entre ciencia, experiencia comunitaria y sabiduria ancestral.", null, { ref: "ecologia", videos: videoByCategory.ecologia, w: 210 }),
+      node("tension", "Legitimidad Estrategica vs. Etica Dialogica", 0, -155, "accountability", "leaf", "La tension central opone el uso estrategico del reporte para imagen frente a una rendicion de cuentas orientada al dialogo, la verdad y el bien comun.", null, { ref: "accountability", w: 215 }),
+      node("crisis", "Crisis Civilizatoria", 280, 155, "ecologia", "leaf", "La crisis civilizatoria nombra los limites sociales y ecologicos de modelos centrados en acumulacion, productividad ilimitada y subordinacion de la vida al mercado.", null, { ref: "ecologia" })
+    ];
+
+    const carta3Links = [
+      link("c3", "nucleo", "sostiene"), link("c3", "trad", "se operacionaliza mediante"), link("c3", "ebc", "se transforma con"), link("c3", "ecopol", "se critica desde"),
+      link("c3", "tension", "genera tension entre"),
+      link("nucleo", "defacc", "define"), link("nucleo", "instrumental", "puede adoptar"), link("instrumental", "greenwashing", "riesgo"), link("nucleo", "eticoacc", "contrasta con"),
+      link("eticoacc", "gri", "impulsa"), link("eticoacc", "iso", "impulsa"), link("eticoacc", "pacto", "impulsa"),
+      link("trad", "gri", "reporting"), link("trad", "pacto", "reporting"), link("trad", "iso", "compliance"), link("trad", "sa8000", "compliance"), link("trad", "aa1000", "validacion"),
+      link("trad", "crisis", "son insuficientes ante"),
+      link("ebc", "filosofia", "propone"), link("ebc", "balance", "usa"), link("ebc", "matriz", "aplica"), link("matriz", "valores", "cruza con"),
+      link("ecopol", "cosificacion", "denuncia"), link("ecopol", "fuerte", "fundamenta"), link("fuerte", "limites", "reconoce"), link("ecopol", "otredad", "exige"), link("ecopol", "praxis", "actua mediante")
+    ];
+
+    const maps = {
+      carta1: { svg: "#svg-carta1", nodes: carta1Nodes, links: carta1Links, viewBox: [-1120, -980, 2240, 1900], tour: ["c1","rsc","gestion","conflicto","negociacion","sostenibilidad"] },
+      carta2: { svg: "#svg-carta2", nodes: carta2Nodes, links: carta2Links, viewBox: [-1040, -860, 2080, 1660], tour: ["c2","gestion2","conflicto2","maxneef2","rsc2","etica2","mitchell2","gardner2","negociacion2","sost2"] },
+      carta3: { svg: "#svg-carta3", nodes: carta3Nodes, links: carta3Links, viewBox: [-1050, -920, 2100, 1800], tour: ["c3","nucleo","tension","trad","gri","ebc","balance","ecopol","fuerte"] }
+    };
+
+    const state = {};
+    const panel = document.getElementById("detailPanel");
+    const panelTitle = document.getElementById("panelTitle");
+    const panelCategory = document.getElementById("panelCategory");
+    const panelBody = document.getElementById("panelBody");
+
+    document.getElementById("closePanel").addEventListener("click", closePanel);
+
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+        document.querySelectorAll(".map-section").forEach(s => s.classList.remove("active"));
+        tab.classList.add("active");
+        document.getElementById(tab.dataset.tab).classList.add("active");
+        stopTours();
+        setTimeout(() => centerView(tab.dataset.tab), 80);
+      });
+    });
+
+    Object.entries(maps).forEach(([key, cfg]) => renderMap(key, cfg));
+
+    function renderMap(key, cfg) {
+      const svg = d3.select(cfg.svg);
+      const [vx, vy, vw, vh] = cfg.viewBox;
+      svg.attr("viewBox", `${vx} ${vy} ${vw} ${vh}`);
+      const defs = svg.append("defs");
+      defs.append("marker")
+        .attr("id", `arrow-${key}`)
+        .attr("viewBox", "0 -5 10 10")
+        .attr("refX", 10)
+        .attr("refY", 0)
+        .attr("markerWidth", 7)
+        .attr("markerHeight", 7)
+        .attr("orient", "auto")
+        .append("path")
+        .attr("d", "M0,-5L10,0L0,5")
+        .attr("fill", "rgba(190,204,229,.52)");
+
+      const viewport = svg.append("g").attr("class", "viewport");
+      const linkLayer = viewport.append("g").attr("class", "links");
+      const nodeLayer = viewport.append("g").attr("class", "nodes");
+
+      const byId = new Map(cfg.nodes.map(n => [n.id, n]));
+      const zoom = d3.zoom()
+        .scaleExtent([0.35, 2.8])
+        .on("zoom", event => viewport.attr("transform", event.transform));
+
+      svg.call(zoom);
+      state[key] = { svg, zoom, byId, timer: null, activeTour: false, cfg };
+
+      const edges = linkLayer.selectAll(".edge")
+        .data(cfg.links)
+        .enter()
+        .append("g")
+        .attr("class", "edge");
+
+      edges.append("path")
+        .attr("d", d => pathFor(byId.get(d.source), byId.get(d.target)))
+        .attr("marker-end", `url(#arrow-${key})`)
+        .attr("stroke-dasharray", d => d.dashed ? "7 7" : null);
+
+      edges.append("text")
+        .attr("class", "edge-label")
+        .attr("x", d => (byId.get(d.source).x + byId.get(d.target).x) / 2)
+        .attr("y", d => (byId.get(d.source).y + byId.get(d.target).y) / 2 - 8)
+        .text(d => d.label);
+
+      const nodes = nodeLayer.selectAll(".node")
+        .data(cfg.nodes)
+        .enter()
+        .append("g")
+        .attr("class", d => `node ${d.level}`)
+        .attr("transform", d => `translate(${d.x},${d.y})`)
+        .on("click", (event, d) => {
+          event.stopPropagation();
+          stopTours();
+          openPanel(d);
+          focusNode(key, d.id, 1.15, 650);
+        });
+
+      nodes.each(function(d) {
+        const g = d3.select(this);
+        if (d.level === "central") {
+          g.append("ellipse")
+            .attr("rx", d.w / 2)
+            .attr("ry", d.h / 2)
+            .attr("fill", d.category === "central" ? "rgba(245,247,251,.96)" : d.color)
+            .attr("stroke", d.category === "central" ? "#9fd3ff" : "#fff")
+            .attr("stroke-width", 2.4)
+            .attr("filter", "drop-shadow(0 0 18px rgba(159,211,255,.55))");
+          g.selectAll("text").data(wrapLabel(d.label, 26)).enter().append("text")
+            .attr("y", (_, i, arr) => (i - (arr.length - 1) / 2) * 16)
+            .attr("fill", d.category === "central" ? "#08101a" : "#fff")
+            .style("fill", d.category === "central" ? "#08101a" : "#fff")
+            .text(t => t);
+        } else {
+          g.append("rect")
+            .attr("x", -d.w / 2)
+            .attr("y", -d.h / 2)
+            .attr("width", d.w)
+            .attr("height", d.h)
+            .attr("rx", d.level === "leaf" ? 18 : 8)
+            .attr("fill", d.color)
+            .attr("stroke", "rgba(255,255,255,.34)")
+            .attr("stroke-width", 1.2);
+          const lines = wrapLabel(d.label, d.level === "leaf" ? 22 : 25);
+          g.selectAll(".label-line").data(lines).enter().append("text")
+            .attr("class", d.level === "leaf" ? "small-text" : "")
+            .attr("y", (_, i, arr) => (i - (arr.length - 1) / 2) * (d.level === "leaf" ? 13 : 15))
+            .text(t => t);
+          if (d.priority) addPriorityBadge(g, d);
+        }
+      });
+
+      const shell = document.querySelector(`[data-map="${key}"] .map-shell`);
+      const dock = shell.querySelector(".control-dock");
+      dock.innerHTML = `
+        <button class="control-btn" data-action="tour">Recorrido automatico</button>
+        <button class="control-btn" data-action="center">Centrar vista</button>
+        <button class="control-btn" data-action="in">Zoom +</button>
+        <button class="control-btn" data-action="out">Zoom -</button>
+      `;
+      dock.querySelector('[data-action="center"]').addEventListener("click", () => centerView(key));
+      dock.querySelector('[data-action="in"]').addEventListener("click", () => svg.transition().duration(240).call(zoom.scaleBy, 1.25));
+      dock.querySelector('[data-action="out"]').addEventListener("click", () => svg.transition().duration(240).call(zoom.scaleBy, .8));
+      dock.querySelector('[data-action="tour"]').addEventListener("click", () => startTour(key));
+
+      const legend = shell.querySelector(".legend");
+      legend.innerHTML = [
+        ["Nodo central", "#f5f7fb"],
+        ["RSC", colors.rsc],
+        ["Stakeholders", colors.stakeholder],
+        ["Conflicto", colors.conflicto],
+        ["Etica", colors.etica],
+        ["Accountability/EBC", colors.accountability]
+      ].map(([name, c]) => `<span><i class="dot" style="--c:${c}"></i>${name}</span>`).join("");
+
+      setTimeout(() => {
+        if (document.querySelector(`[data-map="${key}"]`).classList.contains("active")) centerView(key);
+      }, 120);
+    }
+
+    function addPriorityBadge(g, d) {
+      const badgeColor = d.priority === "alta" ? "#22c55e" : d.priority === "media" ? "#f8c14a" : "#94a3b8";
+      g.append("rect")
+        .attr("x", d.w / 2 - 54)
+        .attr("y", -d.h / 2 - 10)
+        .attr("width", 58)
+        .attr("height", 20)
+        .attr("rx", 10)
+        .attr("fill", badgeColor)
+        .attr("stroke", "rgba(255,255,255,.5)");
+      g.append("text")
+        .attr("class", "badge-text")
+        .attr("x", d.w / 2 - 25)
+        .attr("y", -d.h / 2)
+        .text(d.priority.toUpperCase());
+    }
+
+    function pathFor(a, b) {
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const curve = Math.min(120, Math.max(40, Math.hypot(dx, dy) * .18));
+      const cx1 = a.x + dx * .42 - dy / Math.hypot(dx || 1, dy || 1) * curve;
+      const cy1 = a.y + dy * .42 + dx / Math.hypot(dx || 1, dy || 1) * curve;
+      const cx2 = a.x + dx * .62 - dy / Math.hypot(dx || 1, dy || 1) * curve;
+      const cy2 = a.y + dy * .62 + dx / Math.hypot(dx || 1, dy || 1) * curve;
+      return `M${a.x},${a.y} C${cx1},${cy1} ${cx2},${cy2} ${b.x},${b.y}`;
+    }
+
+    function wrapLabel(label, maxChars) {
+      const words = label.split(" ");
+      const lines = [];
+      let current = "";
+      words.forEach(word => {
+        const test = current ? `${current} ${word}` : word;
+        if (test.length > maxChars && current) {
+          lines.push(current);
+          current = word;
+        } else {
+          current = test;
+        }
+      });
+      if (current) lines.push(current);
+      return lines.slice(0, 3);
+    }
+
+    function openPanel(d) {
+      const detail = d.detail;
+      panelTitle.textContent = detail.title;
+      panelCategory.textContent = detail.category;
+      panelBody.innerHTML = `
+        <p>${detail.explanation}</p>
+        <div class="curious">💡 ${detail.curious}</div>
+        <h3>Aplicacion en Control IT S.A.S.</h3>
+        <p>${detail.app}</p>
+        ${detail.videos && detail.videos.length ? `<h3>Video recomendado</h3>${detail.videos.map(v => `<iframe class="video-frame" src="${v}" title="Video sobre ${escapeHtml(detail.title)}" allowfullscreen loading="lazy"></iframe>`).join("")}` : ""}
+        <h3>Referencias</h3>
+        <ul class="links-list">
+          ${(detail.links || []).slice(0, 3).map(([label, url]) => `<li><a href="${url}" target="_blank" rel="noopener noreferrer">${label}</a></li>`).join("")}
+        </ul>
+      `;
+      panel.classList.add("open");
+      panel.setAttribute("aria-hidden", "false");
+    }
+
+    function closePanel() {
+      panel.classList.remove("open");
+      panel.setAttribute("aria-hidden", "true");
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[ch]));
+    }
+
+    function centerView(key) {
+      const st = state[key];
+      const svgEl = st.svg.node();
+      const box = svgEl.getBoundingClientRect();
+      if (box.width < 20 || box.height < 20) return;
+      st.svg.transition().duration(520).call(st.zoom.transform, d3.zoomIdentity);
+    }
+
+    function focusNode(key, id, scale = 1.2, duration = 720) {
+      const st = state[key];
+      const n = st.byId.get(id);
+      if (!n) return;
+      const box = st.svg.node().getBoundingClientRect();
+      if (box.width < 20 || box.height < 20) return;
+      const [vx, vy, vw, vh] = st.cfg.viewBox;
+      const tx = (vx + vw / 2) - scale * n.x;
+      const ty = (vy + vh / 2) - scale * n.y;
+      st.svg.transition().duration(duration).ease(d3.easeCubicInOut).call(st.zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
+    }
+
+    function startTour(key) {
+      stopTours();
+      const st = state[key];
+      st.activeTour = true;
+      let index = 0;
+      const run = () => {
+        if (!st.activeTour) return;
+        const id = st.cfg.tour[index % st.cfg.tour.length];
+        focusNode(key, id, 1.18, 900);
+        const node = st.byId.get(id);
+        if (node) openPanel(node);
+        index += 1;
+        st.timer = setTimeout(run, 2600);
+      };
+      run();
+    }
+
+    function stopTours() {
+      Object.values(state).forEach(st => {
+        st.activeTour = false;
+        if (st.timer) clearTimeout(st.timer);
+        st.timer = null;
+      });
+    }
+  </script>
+</body>
+</html>

@@ -957,8 +957,8 @@
       link("ecopol", "cosificacion", "denuncia", { soft: true }), link("ecopol", "fuerte", "fundamenta"), link("fuerte", "limites", "reconoce", { soft: true }), link("ecopol", "otredad", "exige", { soft: true }), link("ecopol", "praxis", "actua mediante", { soft: true })
     ];
 
-    compactLayout(carta1Nodes, .92, .84, 70);
-    compactLayout(carta2Nodes, .92, .88, 55);
+    compactLayout(carta1Nodes, 1.28, 1.22, 0);
+    compactLayout(carta2Nodes, 1.16, 1.1, 0);
     setPositions(carta3Nodes, {
       c3: [0, 0],
       nucleo: [0, -350],
@@ -988,9 +988,9 @@
     });
 
     const maps = {
-      carta1: { svg: "#svg-carta1", nodes: carta1Nodes, links: carta1Links, viewBox: [-1080, -820, 2160, 1660], initialScale: 1.18, tour: ["c1","rsc","gestion","conflicto","negociacion","sostenibilidad"] },
-      carta2: { svg: "#svg-carta2", nodes: carta2Nodes, links: carta2Links, viewBox: [-920, -760, 1840, 1460], initialScale: 1.18, tour: ["c2","gestion2","conflicto2","maxneef2","rsc2","etica2","mitchell2","gardner2","negociacion2","sost2"] },
-      carta3: { svg: "#svg-carta3", nodes: carta3Nodes, links: carta3Links, viewBox: [-1070, -720, 2140, 1560], initialScale: 1.65, tour: ["c3","nucleo","tension","trad","gri","ebc","balance","ecopol","fuerte"] }
+      carta1: { svg: "#svg-carta1", nodes: carta1Nodes, links: carta1Links, viewBox: [-1500, -980, 3000, 2100], fitPadding: 130, focusScale: 1.18, tour: ["c1","rsc","gestion","conflicto","negociacion","sostenibilidad"] },
+      carta2: { svg: "#svg-carta2", nodes: carta2Nodes, links: carta2Links, viewBox: [-1200, -850, 2400, 1700], fitPadding: 130, focusScale: 1.2, tour: ["c2","gestion2","conflicto2","maxneef2","rsc2","etica2","mitchell2","gardner2","negociacion2","sost2"] },
+      carta3: { svg: "#svg-carta3", nodes: carta3Nodes, links: carta3Links, viewBox: [-1070, -720, 2140, 1560], fitPadding: 130, focusScale: 1.22, tour: ["c3","nucleo","tension","trad","gri","ebc","balance","ecopol","fuerte"] }
     };
 
     const state = {};
@@ -1009,11 +1009,16 @@
 
     Object.entries(maps).forEach(([key, cfg]) => renderMap(key, cfg));
     activateMap(initialMapKey, false);
+    window.addEventListener("hashchange", () => {
+      const key = location.hash.replace("#", "");
+      if (validMapKeys.includes(key)) activateMap(key, false);
+    });
 
     function activateMap(key, updateHash) {
       if (!validMapKeys.includes(key)) return;
       document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === key));
       document.querySelectorAll(".map-section").forEach(s => s.classList.toggle("active", s.dataset.map === key));
+      closePanel();
       if (updateHash) history.replaceState(null, "", `#${key}`);
       setTimeout(() => centerView(key), 80);
     }
@@ -1060,11 +1065,16 @@
       const nodeLayer = viewport.append("g").attr("class", "nodes");
 
       const byId = new Map(cfg.nodes.map(n => [n.id, n]));
+      const [tx0, ty0, tw, th] = cfg.viewBox;
       const zoom = d3.zoom()
-        .scaleExtent([0.45, 5])
+        .scaleExtent([0.35, 3.4])
+        .translateExtent([[tx0 - tw, ty0 - th], [tx0 + tw * 2, ty0 + th * 2]])
+        .wheelDelta(event => -event.deltaY * (event.deltaMode ? 0.045 : 0.0012))
+        .clickDistance(4)
         .on("zoom", event => viewport.attr("transform", event.transform));
 
       svg.call(zoom);
+      svg.on("dblclick.zoom", null);
       state[key] = { svg, zoom, byId, tourIndex: -1, cfg };
 
       const edges = linkLayer.selectAll(".edge")
@@ -1140,8 +1150,8 @@
         <button class="control-btn" data-action="out">Zoom -</button>
       `;
       dock.querySelector('[data-action="center"]').addEventListener("click", () => centerView(key));
-      dock.querySelector('[data-action="in"]').addEventListener("click", () => svg.transition().duration(240).call(zoom.scaleBy, 1.35));
-      dock.querySelector('[data-action="out"]').addEventListener("click", () => svg.transition().duration(240).call(zoom.scaleBy, .74));
+      dock.querySelector('[data-action="in"]').addEventListener("click", () => zoomBy(key, 1.18));
+      dock.querySelector('[data-action="out"]').addEventListener("click", () => zoomBy(key, .84));
 
       const legend = shell.querySelector(".legend");
       legend.innerHTML = [
@@ -1250,24 +1260,56 @@
       const svgEl = st.svg.node();
       const box = svgEl.getBoundingClientRect();
       if (box.width < 20 || box.height < 20) return;
-      const [vx, vy, vw, vh] = st.cfg.viewBox;
-      const scale = st.cfg.initialScale || 1;
-      const cx = vx + vw / 2;
-      const cy = vy + vh / 2;
-      const transform = d3.zoomIdentity.translate(cx - scale * cx, cy - scale * cy).scale(scale);
+      const transform = fitTransform(st.cfg);
       st.svg.transition().duration(520).call(st.zoom.transform, transform);
     }
 
-    function focusNode(key, id, scale = 1.6, duration = 720) {
+    function focusNode(key, id, duration = 720) {
       const st = state[key];
       const n = st.byId.get(id);
       if (!n) return;
       const box = st.svg.node().getBoundingClientRect();
       if (box.width < 20 || box.height < 20) return;
       const [vx, vy, vw, vh] = st.cfg.viewBox;
+      const current = d3.zoomTransform(st.svg.node());
+      const fit = fitTransform(st.cfg);
+      const scale = Math.min(2.05, Math.max(current.k || 1, fit.k, st.cfg.focusScale || 1.2));
       const tx = (vx + vw / 2) - scale * n.x;
-      const ty = (vy + vh / 2 + 130) - scale * n.y;
+      const ty = (vy + vh / 2 + 85) - scale * n.y;
       st.svg.transition().duration(duration).ease(d3.easeCubicInOut).call(st.zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
+    }
+
+    function zoomBy(key, factor) {
+      const st = state[key];
+      if (!st) return;
+      st.svg.transition().duration(180).ease(d3.easeCubicOut).call(st.zoom.scaleBy, factor);
+    }
+
+    function mapBounds(nodes, padding = 100) {
+      const bounds = nodes.reduce((acc, n) => ({
+        minX: Math.min(acc.minX, n.x - n.w / 2),
+        maxX: Math.max(acc.maxX, n.x + n.w / 2),
+        minY: Math.min(acc.minY, n.y - n.h / 2),
+        maxY: Math.max(acc.maxY, n.y + n.h / 2)
+      }), { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity });
+      bounds.minX -= padding;
+      bounds.maxX += padding;
+      bounds.minY -= padding;
+      bounds.maxY += padding;
+      return bounds;
+    }
+
+    function fitTransform(cfg) {
+      const [vx, vy, vw, vh] = cfg.viewBox;
+      const b = mapBounds(cfg.nodes, cfg.fitPadding || 100);
+      const bw = Math.max(1, b.maxX - b.minX);
+      const bh = Math.max(1, b.maxY - b.minY);
+      const scale = Math.min(1.05, Math.max(.35, Math.min(vw / bw, vh / bh)));
+      const bx = (b.minX + b.maxX) / 2;
+      const by = (b.minY + b.maxY) / 2;
+      const tx = (vx + vw / 2) - scale * bx;
+      const ty = (vy + vh / 2 + 85) - scale * by;
+      return d3.zoomIdentity.translate(tx, ty).scale(scale);
     }
 
     function stepTour(key, direction) {
@@ -1283,7 +1325,7 @@
       const node = st.byId.get(id);
       if (node) {
         openPanel(node);
-        focusNode(key, id, 1.6, 650);
+        focusNode(key, id, 650);
       }
     }
 
